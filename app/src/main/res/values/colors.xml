@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#525eca</color>
+    <color name="colorPrimaryDark">#3f489b</color>
+    <color name="colorAccent">#434142</color>
+    <color name="colorLaser">#ff0000</color>
+    <color name="gradient_start">#c3c4ed</color>
+    <color name="gradient_end">#525eca</color>
+    <color name="colorTextHint">#2d2c2c</color>
+    <color name="transparent_frame">#9a000000</color>
+    <color name="colorResultPoints">#fff700</color>
+    <color name="backgroundAlertDialog">#c3c4ed</color>
+    <color name="black">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="textAlertDialog">#15162e</color>
+    <color name="positiveAlertDialogButton">#2c5b2e</color>
+    <color name="negativeAlertDialogButton">#662626</color>
+    <color name="scanStatusEarly">#fede0a</color>
+    <color name="scanStatusUnscanned">#c00000</color>
+    <color name="scanStatusCorrect">#00c000</color>
+    <color name="scanListFrame">#ffffff</color>
+
+
+</resources>

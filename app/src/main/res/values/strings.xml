@@ -1,0 +1,46 @@
+<resources>
+    <string name="app_name">SeqlApp</string>
+
+    <!-- Errors -->
+    <string name="error_scan">Es wurde kein QR-Code erkannt.</string>
+    <string name="error_location">Geolokalisierung ist deaktiviert!</string>
+
+    <!-- Buttons -->
+    <string name="button_scan">Scannen</string>
+    <string name="toggle_startshift">Arbeit beginnen</string>
+    <string name="toggle_endshift">Arbeit beenden</string>
+
+
+    <!-- Texts -->
+    <string name="text_scan">Scan</string>
+    <string name="text_allescans">Scans</string>
+    <string name="text_allelocations">Locations</string>
+    <string name="text_starttime">Arbeitsbeginn: </string>
+    <string name="text_endtime">Arbeitsende: </string>
+    <string name="text_totaltime">Gearbeitete Zeit: </string>
+
+    <!-- Texts - Main -->
+    <string name="error">Fehler</string>
+
+    <!-- Texts - SyncBoxes -->
+    <string name="loading">Boxen werden geladen.</string>
+    <string name="server_error">Der Server liefert zur Zeit keine Liste mit Briefkästen.</string>
+    <string name="no_inet">Internetverbindung fehlt, Update nicht möglich!" + "\n" + "\n" +"Sobald eine Verbindung besteht wird die akuelle Liste geladen.</string>
+
+    <!-- Texts - SelectCity-->
+    <string name="start_work">Arbeit starten</string>
+    <string name="end_work">Arbeit beenden</string>
+
+    <!-- Hints -->
+    <string name="hint_scan">Scan</string>
+    <string name="hint_date">Scan Zeit</string>
+    <string name="hint_date2">Sync. Zeit</string>
+    <string name="hint_boxID">Box ID</string>
+    <string name="hint_exptime">Abholung</string>
+    <string name="hint_box">Box</string>
+    <string name="hint_city_gö">Göttingen</string>
+    <string name="hint_loc">Location</string>
+    <string name="title_activity_custom_scan_layout">CustomScanLayout</string>
+    <string name="title_activity_maps">Map</string>
+
+</resources>
