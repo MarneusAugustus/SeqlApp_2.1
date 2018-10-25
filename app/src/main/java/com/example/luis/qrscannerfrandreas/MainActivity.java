@@ -479,8 +479,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 databaseHelper.deleteFull();
                                 databaseHelper = new DatabaseHelper(MainActivity.this);
                                 Log.i("SCAN debug", "Liste gelöscht und neu erstellt");
-
-
                                 for (int i = 0; i < arr.length(); i++) {
                                     // Get JSON object
                                     JSONObject jsonobj = arr.getJSONObject(i);
