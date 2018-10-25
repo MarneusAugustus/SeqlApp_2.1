@@ -34,20 +34,21 @@ public class TourExpListActivity extends AppCompatActivity {
         for (int i = 0; i < parent.size(); i++)
 
         {
-            child_level1.add(Integer.toString(i));
+           // child_level1.add(Integer.toString(i));
 
             for (int j = 0; j < parent.size(); j++) {
 
-                child_level2.add(Integer.toString(j));
+            //    child_level2.add(Integer.toString(j));
 
 
                 for (int k = 0; k < parent.size(); k++) {
 
-                    child_level3.add(Integer.toString(k));
+                //    child_level3.add(Integer.toString(k));
                 }
             }
         }
-
+        ArrayList<String> child;
+        child = "leer";
         return child; 
     }
 
@@ -100,7 +101,7 @@ public class TourExpListActivity extends AppCompatActivity {
                 data.add(thirdLevelq2);
                 data.add(thirdLevelq3);
                  */
-                expandableListView = (ExpandableListView) findViewById(R.id.ExpList);
+                expandableListView = findViewById(R.id.ExpList);
                 //passing three level of information to constructor
                 ThirdLevelListAdapter thirdLevelListAdapterAdapter = new ThirdLevelListAdapter(this, parent, secondLevel, data);
                 expandableListView.setAdapter(thirdLevelListAdapterAdapter);

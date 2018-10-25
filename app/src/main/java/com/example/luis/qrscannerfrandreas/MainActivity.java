@@ -145,18 +145,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (!isMyServiceRunning(locationService.getClass())) {
                 startService(locationIntent);
             }
-
         } else if (workingFlagHelper.getWorkingStatus() == 0) {
             buttonShowTime = findViewById(R.id.buttonShowTime);
             buttonShowTime.setBackgroundResource(R.drawable.ic_timer_black_24dp);
         }
-
         //Initializing onclick listeners
         buttonScan.setOnClickListener(this);
         buttonShowSQL.setOnClickListener(this);
         buttonShowTime.setOnClickListener(this);
         textViewVersion.setOnClickListener(this);
-
         //Initializing helpers
         locations = new Locations();
         databaseHelper = new DatabaseHelper(this);
@@ -256,21 +253,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
         try {
-
             //Permission for location?
             if (ContextCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
                 ActivityCompat.requestPermissions(this, new String[]{permission.ACCESS_FINE_LOCATION, permission.ACCESS_COARSE_LOCATION}, 101);
-
             }else{
-
                 IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
             if (result != null) {
                 //if QR-Code has nothing in it
                 if (result.getContents() == null) {
-
                     Toast.makeText(this, getString(R.string.error_scan), Toast.LENGTH_LONG).show();
                     new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                             .setTitle("Fehler")
@@ -287,19 +278,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             changeBGColor(3);
                         }
                     }, 15000);
-
-
                 } else {
-
                     df = new SimpleDateFormat("HH:mm:ss");
-
                     timenow = Calendar.getInstance().getTime();
-
                     poq = "0";
-
-
                     Uri uri = Uri.parse(result.getContents());
-
                     if (!uri.getBooleanQueryParameter("poq", false)) {
                         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                                 .setTitle("Fehler")
@@ -307,7 +290,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 .setIcon(R.drawable.ic_error_red_24dp)
                                 .setNeutralButton("Ok", null)
                                 .show();
-
                         changeBGColor(1);
                         vib.vibrate(vibTime);
                         new Handler().postDelayed(new Runnable() {
@@ -316,42 +298,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 changeBGColor(3);
                             }
                         }, 15000);
-
                     } else {
                         path = uri.getPath();
                         idStr = path.substring(path.lastIndexOf('/') + 1);
                         Log.i("PATH debug", path + "\n" + idStr);
                         poq = uri.getQueryParameter("poq");
                         boxID = Integer.parseInt(poq);
-
                         city = databaseHelper.getCity(boxID);
-
-
-
-
                             dfDate = new SimpleDateFormat("dd.MM.yyyy");
                             todaysDate = dfDate.format(Calendar.getInstance().getTime());
                             dfGetTime = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-
-
-
 
                         try {
                                 expectedTime = dfGetTime.parse(todaysDate + " " + databaseHelper.getTime(boxID));
 
                             } catch (ParseException e) {
                                 e.printStackTrace();
-
                             }
-
-
                             df = new SimpleDateFormat("HH:mm:ss");
                             theTime = Calendar.getInstance().getTime();
-
-                                String scanToSend = URL_SEND_SCAN + "boxid=" + poq + "&" + "mac=" + GetMacAdress.getMacAddr() + "&" + "lat=" +locationTracker.lat + "&" + "lon=" + locationTracker.lon + "&" + "acc=" + locationTracker.acc + "&" + "sig=" + locationTracker.provider + "&" + "toc="; //+ df.format(theTime);
+                                String scanToSend = URL_SEND_SCAN + "boxid=" + poq + "&" + "mac=" + GetMacAdress.getMacAddr() + "&" + "lat=" + LocationTracker.lat + "&" + "lon=" + LocationTracker.lon + "&" + "acc=" + LocationTracker.acc + "&" + "sig=" + LocationTracker.provider + "&" + "toc="; //+ df.format(theTime);
                                 saveScanToServer(scanToSend, theTime, 2);
-
-
                     }
                 }
             } else {
@@ -366,16 +333,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     .show();
 
             vib.vibrate(vibTime);
-
             changeBGColor(1);
-
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     changeBGColor(3);
                 }
             }, 15000);
-
 
         } catch (Exception e) {
             new AlertDialog.Builder(this, R.style.AlertDialogStyle)
@@ -395,8 +359,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     changeBGColor(3);
                 }
             }, 15000);
-
-
         }
     }
 
@@ -416,17 +378,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-
-
         switch (v.getId()) {
             case R.id.buttonScan:
-
                 //Permission for location?
                 if (ContextCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
                     ActivityCompat.requestPermissions(this, new String[]{permission.ACCESS_FINE_LOCATION, permission.ACCESS_COARSE_LOCATION}, 101);
                 }else{
-
                 if (workingFlagHelper.getWorkingStatus() == 0) {
                     new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                             .setTitle("Sie haben Ihre Arbeit noch nicht begonnen!")
@@ -441,7 +398,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             .setNegativeButton("Nein", null)
                             .show();
                     vib.vibrate(vibTime);
-
                 } else {
                     if (!databaseHelper.checkIfBoxlistExists()) {
                         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
@@ -454,27 +410,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     }
                                 })
                                 .show();
-
                     } else {
                         new IntentIntegrator(MainActivity.this).setCaptureActivity(ScannerActivity.class).initiateScan();
                     }
                 }}
-
                 break;
-
             case R.id.buttonShowSQL:
-
                 Intent scansIntent = new Intent(getApplicationContext(), TourExpListActivity.class);
                 startActivity(scansIntent);
                 //loadScans();
                 break;
-
             case R.id.buttonShowTime:
-
                 Intent tourIntent = new Intent(getApplicationContext(), SelectCityActivity.class);
                 startActivity(tourIntent);
                 break;
-
             case R.id.textViewVersion:
                 final Animation myAnim = AnimationUtils.loadAnimation(this, R.anim.bounce);
                 // Use bounce interpolator with amplitude 0.2 and frequency 20
@@ -484,8 +433,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Intent serviceUpdate = new Intent(this, UpdateService.class);
                 startService(serviceUpdate);
                 break;
-
-
         }
     }
 
@@ -778,7 +725,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }) {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("scan", URL_SAVE_BOXES);
                 return params;

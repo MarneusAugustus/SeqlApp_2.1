@@ -63,7 +63,7 @@ public class ScanListActivity extends AppCompatActivity {
     private RecyclerView recyclerViewUsers;
     private List<Scans> listUsers;
     private UsersRecyclerAdapter usersRecyclerAdapter;
-    private TourRecyclerAdapter tourRecyclerAdapter;
+ //   private TourRecyclerAdapter tourRecyclerAdapter;
     private DatabaseHelper databaseHelper;
     private ArrayList cities;
 
@@ -144,11 +144,7 @@ public class ScanListActivity extends AppCompatActivity {
         recyclerViewUsers.setAdapter(usersRecyclerAdapter);
         databaseHelper = new DatabaseHelper(activity);
         todayBoxlistID = databaseHelper.getTodayBoxlistid();
-        if (databaseHelper.checkIfAlreadyScan()) {
-            firstScanDone = true;
-        } else {
-            firstScanDone = false;
-        }
+        firstScanDone = databaseHelper.checkIfAlreadyScan();
 
 
         /**
@@ -159,7 +155,7 @@ public class ScanListActivity extends AppCompatActivity {
          todaysCity = dfForTitle.format(forTitle);
          }
          textViewName.setText("Tour: " + todaysCity);*/
-        tourID = tourRecyclerAdapter.tourID;
+       // tourID = tourRecyclerAdapter.tourID;
         boxlistid = databaseHelper.getBoxlistidFromTour(tourID);
         cities = new ArrayList<>();
 
@@ -258,7 +254,7 @@ public class ScanListActivity extends AppCompatActivity {
                     }
                 }) {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("scan", URL_SAVE_BOXES);
                 return params;
