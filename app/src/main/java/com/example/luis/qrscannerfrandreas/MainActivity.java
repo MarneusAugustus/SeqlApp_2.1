@@ -448,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final ProgressDialog progressDialog = new ProgressDialog(this);
         final Date timeNow = Calendar.getInstance().getTime();
 
-        progressDialog.setMessage("Saving Scan...");
+        progressDialog.setMessage("Scan wird gespeichert...");
         progressDialog.show();
 
         final String scan = result + time.getTime() / 1000;
