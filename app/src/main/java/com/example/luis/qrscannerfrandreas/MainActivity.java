@@ -46,6 +46,7 @@ import org.json.JSONObject;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,6 +62,7 @@ import methods.LocationTracker;
 import methods.MyBounceInterpolator;
 import methods.SendToServer;
 import methods.TimeCalculator;
+import modal.Box;
 import modal.Locations;
 import sql.DatabaseHelper;
 import sql.LocationHelper;
@@ -83,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //a broadcast to know weather the data is synced or not
     public static final String DATA_SAVED_BROADCAST = "Daten gespeichert.";
     public static String URL_SAVE_SCAN = null;
-    public static String  city;
+    public static String city;
     public static int boxlistID, boxID;
     private final UpdateAlarmReceiver alarm = new UpdateAlarmReceiver();
     public String poq, path, idStr;
@@ -123,6 +125,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BroadcastReceiver broadcastReceiver;
     LocationService locationService;
     Intent locationIntent;
+    ArrayList<Box> boxArrayList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,9 +170,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         alarm.setAlarm(this);
 
 
-
         //Broadcast
-        registerReceiver(new NetworkStateChecker(),new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        registerReceiver(new NetworkStateChecker(), new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
         //Permission for location?
         if (ContextCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -257,39 +259,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //Permission for location?
             if (ContextCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, new String[]{permission.ACCESS_FINE_LOCATION, permission.ACCESS_COARSE_LOCATION}, 101);
-            }else{
+            } else {
                 IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-            if (result != null) {
-                //if QR-Code has nothing in it
-                if (result.getContents() == null) {
-                    Toast.makeText(this, getString(R.string.error_scan), Toast.LENGTH_LONG).show();
-                    new AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                            .setTitle("Fehler")
-                            .setMessage("Scanvorgang misslungen. Bitte wiederholen!")
-                            .setIcon(R.drawable.ic_error_red_24dp)
-                            .setNeutralButton("Ok", null)
-                            .show();
-
-                    changeBGColor(1);
-                    vib.vibrate(vibTime);
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            changeBGColor(3);
-                        }
-                    }, 15000);
-                } else {
-                    df = new SimpleDateFormat("HH:mm:ss");
-                    timenow = Calendar.getInstance().getTime();
-                    poq = "0";
-                    Uri uri = Uri.parse(result.getContents());
-                    if (!uri.getBooleanQueryParameter("poq", false)) {
+                if (result != null) {
+                    //if QR-Code has nothing in it
+                    if (result.getContents() == null) {
+                        Toast.makeText(this, getString(R.string.error_scan), Toast.LENGTH_LONG).show();
                         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                                 .setTitle("Fehler")
-                                .setMessage("Keine Postkastennummer im QR-Code, richtigen Code erwischt?.")
+                                .setMessage("Scanvorgang misslungen. Bitte wiederholen!")
                                 .setIcon(R.drawable.ic_error_red_24dp)
                                 .setNeutralButton("Ok", null)
                                 .show();
+
                         changeBGColor(1);
                         vib.vibrate(vibTime);
                         new Handler().postDelayed(new Runnable() {
@@ -299,17 +281,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                         }, 15000);
                     } else {
-                        path = uri.getPath();
-                        idStr = path.substring(path.lastIndexOf('/') + 1);
-                        Log.i("PATH debug", path + "\n" + idStr);
-                        poq = uri.getQueryParameter("poq");
-                        boxID = Integer.parseInt(poq);
-                        city = databaseHelper.getCity(boxID);
+                        df = new SimpleDateFormat("HH:mm:ss");
+                        timenow = Calendar.getInstance().getTime();
+                        poq = "0";
+                        Uri uri = Uri.parse(result.getContents());
+                        if (!uri.getBooleanQueryParameter("poq", false)) {
+                            new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                                    .setTitle("Fehler")
+                                    .setMessage("Keine Postkastennummer im QR-Code, richtigen Code erwischt?.")
+                                    .setIcon(R.drawable.ic_error_red_24dp)
+                                    .setNeutralButton("Ok", null)
+                                    .show();
+                            changeBGColor(1);
+                            vib.vibrate(vibTime);
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    changeBGColor(3);
+                                }
+                            }, 15000);
+                        } else {
+                            path = uri.getPath();
+                            idStr = path.substring(path.lastIndexOf('/') + 1);
+                            Log.i("PATH debug", path + "\n" + idStr);
+                            poq = uri.getQueryParameter("poq");
+                            boxID = Integer.parseInt(poq);
+                            city = databaseHelper.getCity(boxID);
                             dfDate = new SimpleDateFormat("dd.MM.yyyy");
                             todaysDate = dfDate.format(Calendar.getInstance().getTime());
                             dfGetTime = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
-                        try {
+                            try {
                                 expectedTime = dfGetTime.parse(todaysDate + " " + databaseHelper.getTime(boxID));
 
                             } catch (ParseException e) {
@@ -317,14 +319,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             }
                             df = new SimpleDateFormat("HH:mm:ss");
                             theTime = Calendar.getInstance().getTime();
-                                String scanToSend = URL_SEND_SCAN + "boxid=" + poq + "&" + "mac=" + GetMacAdress.getMacAddr() + "&" + "lat=" + LocationTracker.lat + "&" + "lon=" + LocationTracker.lon + "&" + "acc=" + LocationTracker.acc + "&" + "sig=" + LocationTracker.provider + "&" + "toc="; //+ df.format(theTime);
-                                saveScanToServer(scanToSend, theTime, 2);
+                            String scanToSend = URL_SEND_SCAN + "boxid=" + poq + "&" + "mac=" + GetMacAdress.getMacAddr() + "&" + "lat=" + LocationTracker.lat + "&" + "lon=" + LocationTracker.lon + "&" + "acc=" + LocationTracker.acc + "&" + "sig=" + LocationTracker.provider + "&" + "toc="; //+ df.format(theTime);
+                            saveScanToServer(scanToSend, theTime, 2);
+                        }
                     }
+                } else {
+                    super.onActivityResult(requestCode, resultCode, data);
                 }
-            } else {
-                super.onActivityResult(requestCode, resultCode, data);
-            }}
+            }
         } catch (UnsupportedOperationException e) {
+            e.printStackTrace();
             new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                     .setTitle("Fehler")
                     .setMessage("Kein gültiger QR-Code.")
@@ -342,6 +346,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }, 15000);
 
         } catch (Exception e) {
+            e.printStackTrace();
             new AlertDialog.Builder(this, R.style.AlertDialogStyle)
                     .setTitle("Fehler")
                     .setMessage("Kein gültiger QR-Code.")
@@ -383,40 +388,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //Permission for location?
                 if (ContextCompat.checkSelfPermission(this, permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this, permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     ActivityCompat.requestPermissions(this, new String[]{permission.ACCESS_FINE_LOCATION, permission.ACCESS_COARSE_LOCATION}, 101);
-                }else{
-                if (workingFlagHelper.getWorkingStatus() == 0) {
-                    new AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                            .setTitle("Sie haben Ihre Arbeit noch nicht begonnen!")
-                            .setMessage("Arbeit jetzt beginnen?")
-                            .setIcon(R.drawable.ic_access_time_red_24dp)
-                            .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    Intent tourIntent = new Intent(getApplicationContext(), SelectCityActivity.class);
-                                    startActivity(tourIntent);
-                                }
-                            })
-                            .setNegativeButton("Nein", null)
-                            .show();
-                    vib.vibrate(vibTime);
                 } else {
-                    if (!databaseHelper.checkIfBoxlistExists()) {
+                    if (workingFlagHelper.getWorkingStatus() == 0) {
                         new AlertDialog.Builder(this, R.style.AlertDialogStyle)
-                                .setTitle("Fehler")
-                                .setMessage("Boxenliste konnte noch nicht aktualisiert werden." + "\n" + "\n" + "Aktuelle Liste wird jetzt geladen.")
-                                .setIcon(R.drawable.ic_assignment_black_24dp)
-                                .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                                .setTitle("Sie haben Ihre Arbeit noch nicht begonnen!")
+                                .setMessage("Arbeit jetzt beginnen?")
+                                .setIcon(R.drawable.ic_access_time_red_24dp)
+                                .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        syncBoxes();
+                                        Intent tourIntent = new Intent(getApplicationContext(), SelectCityActivity.class);
+                                        startActivity(tourIntent);
                                     }
                                 })
+                                .setNegativeButton("Nein", null)
                                 .show();
+                        vib.vibrate(vibTime);
                     } else {
-                        new IntentIntegrator(MainActivity.this).setCaptureActivity(ScannerActivity.class).initiateScan();
+                        if (!databaseHelper.checkIfBoxlistExists()) {
+                            new AlertDialog.Builder(this, R.style.AlertDialogStyle)
+                                    .setTitle("Fehler")
+                                    .setMessage("Boxenliste konnte noch nicht aktualisiert werden." + "\n" + "\n" + "Aktuelle Liste wird jetzt geladen.")
+                                    .setIcon(R.drawable.ic_assignment_black_24dp)
+                                    .setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            syncBoxes();
+                                        }
+                                    })
+                                    .show();
+                        } else {
+                            new IntentIntegrator(MainActivity.this).setCaptureActivity(ScannerActivity.class).initiateScan();
+                        }
                     }
-                }}
+                }
                 break;
             case R.id.buttonShowSQL:
-                Intent scansIntent = new Intent(getApplicationContext(), TourExpListActivity.class);
+                Intent scansIntent = new Intent(getApplicationContext(), ExpandableListMain.class);
                 startActivity(scansIntent);
                 //loadScans();
                 break;
@@ -442,8 +448,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
 
     /*
-    * this method is passing the scan to the server
-    * */
+     * this method is passing the scan to the server
+     * */
     private void saveScanToServer(String result, final Date time, final int timing) {
         final ProgressDialog progressDialog = new ProgressDialog(this);
         final Date timeNow = Calendar.getInstance().getTime();
@@ -491,25 +497,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     String zeit = "-";
                                     int status = 0;
 
-                                    if (!jsonobj.get("zeit").equals(null)){
+                                    if (!jsonobj.get("zeit").equals(null)) {
                                         zeit = jsonobj.get("zeit").toString();
                                         status = 2;
                                     }
 
                                     float lon;
                                     float lat;
-                                    try{
+                                    try {
                                         lat = Float.valueOf(jsonobj.get("lat").toString());
-                                    }catch(NumberFormatException E){
+                                    } catch (NumberFormatException E) {
                                         lat = 0;
                                     }
-                                    try{
+                                    try {
                                         lon = Float.valueOf(jsonobj.get("lon").toString());
-                                    }catch(NumberFormatException E){
+                                    } catch (NumberFormatException E) {
                                         lon = 0;
                                     }
-                                    databaseHelper.addScan(Integer.valueOf(jsonobj.get("boxid").toString()), timeNow.getTime(), jsonobj.get("city").toString(), Integer.valueOf(jsonobj.get("cityID").toString()), Integer.valueOf(jsonobj.get("boxlistID").toString()), Integer.valueOf(jsonobj.get("nr_in_route").toString()), jsonobj.get("titel").toString(), jsonobj.get("street").toString(), jsonobj.get("insti").toString(), jsonobj.get("genau").toString(), jsonobj.get("nicht_vor").toString(), "-", "-", 0, 0, lat,lon,Integer.valueOf(jsonobj.get("tourID").toString()),"");
-
+                                    databaseHelper.addScan(Integer.valueOf(jsonobj.get("boxid").toString()), timeNow.getTime(), jsonobj.get("city").toString(), Integer.valueOf(jsonobj.get("cityID").toString()), Integer.valueOf(jsonobj.get("boxlistID").toString()), Integer.valueOf(jsonobj.get("nr_in_route").toString()), jsonobj.get("titel").toString(), jsonobj.get("street").toString(), jsonobj.get("insti").toString(), jsonobj.get("genau").toString(), jsonobj.get("nicht_vor").toString(), "-", "-", 0, 0, lat, lon, Integer.valueOf(jsonobj.get("tourID").toString()), "");
+                                    /** boxArrayList.add(new Box(Integer.valueOf(jsonobj.get("boxid").toString()), timeNow.getTime(), jsonobj.get("city").toString(), Integer.valueOf(jsonobj.get("cityID").toString()), Integer.valueOf(jsonobj.get("boxlistID").toString()), Integer.valueOf(jsonobj.get("nr_in_route").toString()), jsonobj.get("titel").toString(), jsonobj.get("street").toString(), jsonobj.get("insti").toString(), jsonobj.get("genau").toString(), jsonobj.get("nicht_vor").toString(), "-", "-", 0, 0, lat,lon,Integer.valueOf(jsonobj.get("tourID").toString()));
+                                     */
 
                                     Log.i("BOXUPDATE debug", "Boxenupdate erfolgreich, Box: " + jsonobj.get("boxid").toString() + " ist gespeichert");
                                     progressDialog.dismiss();
@@ -517,7 +524,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }
 
                                 Log.i("URLCALL debug", "Box " + poq + " saved and synced (MainActivity).");
-                                if (obj.getString("message") != "" ){
+                                if (obj.getString("message") != "") {
 
                                     new AlertDialog.Builder(mContext, R.style.AlertDialogStyle)
                                             .setTitle("Serverantwort")
@@ -530,9 +537,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                 }
                                             })
                                             .show();
-                                }else{
-                                Intent scansIntent = new Intent(getApplicationContext(), ScanListActivity.class);
-                                startActivity(scansIntent);}
+                                } else {
+                                    Intent scansIntent = new Intent(getApplicationContext(), ScanListActivity.class);
+                                    startActivity(scansIntent);
+                                }
 
                             } else {
                                 //if there is some error
@@ -542,7 +550,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 databaseHelper.updateScanTiming(boxID, timing);
 
                                 Log.i("URLCALL debug", "Box " + boxID + " saved unsynced (MainActivity)" + "\n" + "error : " + obj.get("error"));
-                                if (obj.getString("message") != "" ){
+                                if (obj.getString("message") != "") {
 
                                     new AlertDialog.Builder(mContext, R.style.AlertDialogStyle)
                                             .setTitle("Serverantwort")
@@ -554,9 +562,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                                     startActivity(scansIntent);
                                                 }
                                             })
-                                            .show();}else{
+                                            .show();
+                                } else {
                                     Intent scansIntent = new Intent(getApplicationContext(), ScanListActivity.class);
-                                    startActivity(scansIntent);}
+                                    startActivity(scansIntent);
+                                }
 
                             }
                         } catch (JSONException e) {
@@ -569,7 +579,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onErrorResponse(VolleyError error) {
                         progressDialog.dismiss();
 
-                        if ( !databaseHelper.checkScanExist(poq)) {
+                        if (!databaseHelper.checkScanExist(poq)) {
                             Vibrator vib = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
                             new AlertDialog.Builder(MainActivity.this, R.style.AlertDialogStyle)
@@ -586,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     changeBGColor(3);
                                 }
                             }, 15000);
-                        }else{
+                        } else {
                             final long diff = expectedTime.getTime() - timenow.getTime();
                             Log.i("URLCALL", "!!!" + "\n" + "!!!" + "\n" + diff + "\n" + "!!!" + "\n" + "!!!");
 
@@ -600,11 +610,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                         .setTitle("Zu früh!")
                                         .setMessage("Postkasten Nummer " + poq + " darf nicht vor " + databaseHelper.getTime(boxID) + " abgeholt werden." + "\n" + "Bitte in " + timeCalculator.formatTime(diff) + " wiederholen!" + "\n" + "Soll ein Timer für diese Uhrzeit gestartet werden?")
                                         .setIcon(R.drawable.ic_access_time_black_24dp)
-                                        .setPositiveButton("Ja",new DialogInterface.OnClickListener() {
+                                        .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int which) {
                                                 Intent alarmIntent = new Intent(AlarmClock.ACTION_SET_TIMER);
                                                 alarmIntent.putExtra(AlarmClock.EXTRA_MESSAGE, "Probenabholung Postkastennummer: " + poq);
-                                                alarmIntent.putExtra(AlarmClock.EXTRA_LENGTH, (int)diff/1000);
+                                                alarmIntent.putExtra(AlarmClock.EXTRA_LENGTH, (int) diff / 1000);
                                                 startActivity(alarmIntent);
                                             }
                                         })
@@ -621,14 +631,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 }, 3000);
 
                             }
-                        //on error storing the scan to sqlite with status unsynced
-                        boxlistID = databaseHelper.getBoxlistid(boxID);
-                        databaseHelper.updateTodayBoxListID(boxlistID);
-                        databaseHelper.updateScanStatus(boxID, 1, scan + time.getTime() / 1000);
-                        databaseHelper.updateScanDate(boxID, df.format(time));
-                        databaseHelper.updateScanTiming(boxID, timing);
-                        Intent scansIntent = new Intent(getApplicationContext(), ScanListActivity.class);
-                        startActivity(scansIntent);
+                            //on error storing the scan to sqlite with status unsynced
+                            boxlistID = databaseHelper.getBoxlistid(boxID);
+                            databaseHelper.updateTodayBoxListID(boxlistID);
+                            databaseHelper.updateScanStatus(boxID, 1, scan + time.getTime() / 1000);
+                            databaseHelper.updateScanDate(boxID, df.format(time));
+                            databaseHelper.updateScanTiming(boxID, timing);
+                            Intent scansIntent = new Intent(getApplicationContext(), ScanListActivity.class);
+                            startActivity(scansIntent);
 
                         }
 
@@ -674,17 +684,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                     // Add boxID/Name extracted from Object                                    float lat;
                                     float lon;
                                     float lat;
-                                    try{
+                                    try {
                                         lat = Float.valueOf(jsonobj.get("lat").toString());
-                                    }catch(NumberFormatException E){
+                                    } catch (NumberFormatException E) {
                                         lat = 0;
                                     }
-                                    try{
+                                    try {
                                         lon = Float.valueOf(jsonobj.get("lon").toString());
-                                    }catch(NumberFormatException E){
+                                    } catch (NumberFormatException E) {
                                         lon = 0;
                                     }
-                                    databaseHelper.addScan(Integer.valueOf(jsonobj.get("boxid").toString()), timeNow.getTime(), jsonobj.get("city").toString(), Integer.valueOf(jsonobj.get("cityID").toString()), Integer.valueOf(jsonobj.get("boxlistID").toString()), Integer.valueOf(jsonobj.get("nr_in_route").toString()), jsonobj.get("titel").toString(), jsonobj.get("street").toString(), jsonobj.get("insti").toString(), jsonobj.get("genau").toString(), jsonobj.get("nicht_vor").toString(), "-", "-", 0, 0, lat,lon,Integer.valueOf(jsonobj.get("tourID").toString()),"");
+                                    databaseHelper.addScan(Integer.valueOf(jsonobj.get("boxid").toString()), timeNow.getTime(), jsonobj.get("city").toString(), Integer.valueOf(jsonobj.get("cityID").toString()), Integer.valueOf(jsonobj.get("boxlistID").toString()), Integer.valueOf(jsonobj.get("nr_in_route").toString()), jsonobj.get("titel").toString(), jsonobj.get("street").toString(), jsonobj.get("insti").toString(), jsonobj.get("genau").toString(), jsonobj.get("nicht_vor").toString(), "-", "-", 0, 0, lat, lon, Integer.valueOf(jsonobj.get("tourID").toString()), "");
                                     //databaseHelper.addScan(jsonobj.get("titel").toString(),2);
                                     Log.i("BOXUPDATE debug", "Boxenupdate erfolgreich, Box: " + jsonobj.get("boxid").toString() + " ist gespeichert");
                                     progressDialog.dismiss();
@@ -710,13 +720,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 .setTitle("Fehler")
                                 .setMessage("Internetverbindung fehlt, Update nicht möglich!" + "\n" + "Sobald eine Verbindung besteht wird die akuelle Liste geladen." + "\n" + "Durch einen klick auf 'Einstellungen' können Sie die aktuellen Netzwerk-Einstellungen überprüfen.")
                                 .setIcon(R.drawable.ic_assignment_red_24dp)
-                                .setPositiveButton("Einstellungen",         new DialogInterface.OnClickListener() {
+                                .setPositiveButton("Einstellungen", new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int id) {
                                         Intent i = new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS);
                                         startActivity(i);
                                     }
                                 })
-                                .setNegativeButton("Abrechen",null)
+                                .setNegativeButton("Abrechen", null)
                                 .show();
                         vib.vibrate(vibTime);
 
