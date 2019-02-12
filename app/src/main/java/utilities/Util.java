@@ -1,13 +1,15 @@
 package utilities;
 
-/**
- * Created by Angel on 20.02.2018.
+/*
+  Created by Angel on 20.02.2018.
  */
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
+
+import java.util.Objects;
 
 import Services.TestJobService;
 
@@ -22,7 +24,7 @@ public class Util {
         builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
         builder.setRequiresCharging(false); // we don't care if the device is charging or not
         JobScheduler jobScheduler = context.getSystemService(JobScheduler.class);
-        jobScheduler.schedule(builder.build());
+        Objects.requireNonNull(jobScheduler).schedule(builder.build());
     }
 
 }

@@ -15,8 +15,9 @@ import com.example.luis.qrscannerfrandreas.VolleySingleton;
 import sql.UrlHelper;
 
 public class DownloadService extends IntentService {
-    MainActivity mainActivity;
-    App app = new App();
+
+        App app;
+        MainActivity mainActivity;
 
     public DownloadService() {
         super("DownloadService");
@@ -26,33 +27,33 @@ public class DownloadService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i("UPDATE debug", "Service Download wurde gestartet!");
+        if (App.debug == 1) {
 
+            Log.i("UPDATE debug", "Service Download wurde gestartet!");
+        }
         final Intent myIntent = new Intent(App.getContext(), UpdateApp.class);
         myIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         final UrlHelper urlHelper = new UrlHelper(this);
 
 
         StringRequest newStringRequest = new StringRequest(com.android.volley.Request.Method.GET, urlHelper.getUrl(),
-                new com.android.volley.Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
+                response -> {
+                    try {
+                        if (App.debug == 1) {
+
                             Log.i("UPDATE debug", urlHelper.getUrl());
-
-                            startActivity(myIntent);
-
-                        } catch (Exception e) {
-                            e.printStackTrace();
-
                         }
+                        startActivity(myIntent);
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+
                     }
                 },
-                new com.android.volley.Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Toast.makeText(getApplicationContext(), "Es ist ein Fehler aufgetreten!", Toast.LENGTH_LONG).show();
+                error -> {
+                    Toast.makeText(getApplicationContext(), "Es ist ein Fehler aufgetreten!", Toast.LENGTH_LONG).show();
 
+                    if (App.debug == 1) {
 
                         Log.i("UPDATE debug", "Error Response 2");
                     }

@@ -32,7 +32,7 @@ public class GetMacAdress {
                 }
                 return res1.toString();
             }
-        } catch (Exception ex) {
+        } catch (Exception ignored) {
         }
         return "02:00:00:00:00:00";
     }

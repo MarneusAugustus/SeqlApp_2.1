@@ -63,11 +63,14 @@ public class Scans {
     }
 
 
+
     public int getId() {
         return id;
     }
 
+
     public void setId(int id) {
+
         this.id = id;
     }
 
@@ -76,6 +79,7 @@ public class Scans {
     }
 
     public void setBoxID(int boxid) {
+
         this.boxid = boxid;
     }
 
@@ -85,13 +89,18 @@ public class Scans {
 
     public void setToday(long today) {
         this.today = today;
+
     }
+
 
     public String getCity() {
         return city;
+
     }
 
+
     public void setCity(String city) {
+
         this.city = city;
     }
 
@@ -100,12 +109,15 @@ public class Scans {
     }
 
     public void setCityid(int cityid) {
+
         this.cityid = cityid;
     }
 
     public int getBoxlistid() {
+
         return boxlistid;
     }
+
 
     public void setBoxlistid(int boxlistid) {
         this.boxlistid = boxlistid;
@@ -156,10 +168,12 @@ public class Scans {
     }
 
     public void setInsti(String insti) {
+
         this.insti = insti;
     }
 
     public String getGenau() {
+
         return genau;
     }
 
@@ -227,7 +241,7 @@ public class Scans {
         return status;
     }
 
-    public void setStatus(int id) {
+    public void setStatus() {
         this.status = status;
     }
 
@@ -235,7 +249,7 @@ public class Scans {
         return timing;
     }
 
-    public void getTiming(int id) {
+    public void setTiming() {
         this.timing = timing;
     }
 }

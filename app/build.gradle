@@ -10,8 +10,8 @@ android {
         applicationId "eu.seqlab.kuriere.scanner"
         minSdkVersion 24
         targetSdkVersion 26
-        versionCode 21
-        versionName "2.1.0"
+        versionCode 22
+        versionName "2.1.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 

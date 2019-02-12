@@ -1,7 +1,7 @@
 package sql;
 
-/**
- * Created by Angel on 20.11.2017.
+/*
+  Created by Angel on 20.11.2017.
  */
 
 import android.content.ContentValues;
@@ -28,27 +28,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // User Table Columns names
-    public static final String COLUMN_SCAN_ID = "id";
+    private static final String COLUMN_SCAN_ID = "id";
     public static final String COLUMN_BOXID = "boxid";
-    public static final String COLUMN_TODAY = "today";
-    public static final String COLUMN_CITY = "city";
-    public static final String COLUMN_CITYID = "cityid";
-    public static final String COLUMN_BOXLISTID = "boxlistid";
-    public static final String COLUMN_TODAY_BOXLISTID = "todayboxlistid";
-    public static final String COLUMN_ROUTEORDER = "routeorder";
+    private static final String COLUMN_TODAY = "today";
+    private static final String COLUMN_CITY = "city";
+    private static final String COLUMN_CITYID = "cityid";
+    private static final String COLUMN_BOXLISTID = "boxlistid";
+    private static final String COLUMN_TODAY_BOXLISTID = "todayboxlistid";
+    private static final String COLUMN_ROUTEORDER = "routeorder";
     public static final String COLUMN_SCAN = "scan";
-    public static final String COLUMN_EXPTIME = "exptime";
-    public static final String COLUMN_DATE = "date";
-    public static final String COLUMN_DATESYN = "datesyn";
-    public static final String COLUMN_NAME = "name";
-    public static final String COLUMN_STREET = "street";
-    public static final String COLUMN_INSTI = "insti";
-    public static final String COLUMN_GENAU = "genau";
-    public static final String COLUMN_STATUS = "status";
-    public static final String COLUMN_TIMING = "timing";
-    public static final String COLUMN_LON = "longitude";
-    public static final String COLUMN_LAT = "latitude";
-    public static final String COLUMN_TOUR = "tourID";
+    private static final String COLUMN_EXPTIME = "exptime";
+    private static final String COLUMN_DATE = "date";
+    private static final String COLUMN_DATESYN = "datesyn";
+    private static final String COLUMN_NAME = "name";
+    private static final String COLUMN_STREET = "street";
+    private static final String COLUMN_INSTI = "insti";
+    private static final String COLUMN_GENAU = "genau";
+    private static final String COLUMN_STATUS = "status";
+    private static final String COLUMN_TIMING = "timing";
+    private static final String COLUMN_LON = "longitude";
+    private static final String COLUMN_LAT = "latitude";
+    private static final String COLUMN_TOUR = "tourID";
 
     // Database Version
     private static final int DATABASE_VERSION = 1;
@@ -57,7 +57,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // User table name
     private static final String TABLE_SCANS = "scans";
     // create table sql query
-    private String CREATE_SCANS_TABLE = "CREATE TABLE " + TABLE_SCANS
+    private final String CREATE_SCANS_TABLE = "CREATE TABLE " + TABLE_SCANS
             + " ("
             + COLUMN_SCAN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + COLUMN_BOXID + " INTEGER, "
@@ -86,7 +86,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // drop table sql query
-    private String DROP_SCANS_TABLE = "DROP TABLE IF EXISTS " + TABLE_SCANS;
+    private final String DROP_SCANS_TABLE = "DROP TABLE IF EXISTS " + TABLE_SCANS;
 
     /**
      * Constructor
@@ -121,7 +121,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     * 1 means the name is not synced with the server
     * */
 
-    public boolean addScan(int boxid, long today, String city, int cityid, int boxlistid, int routeorder, String name, String street, String insti, String genau, String exptime, String time, String time2, int status, int timing, float latitude, float longitude, int tourID, String scan) {
+    public void addScan(int boxid, long today, String city, int cityid, int boxlistid, int routeorder, String name, String street, String insti, String genau, String exptime, String time, String time2, int status, int timing, float latitude, float longitude, int tourID, String scan) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
 
@@ -148,7 +148,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.insert(TABLE_SCANS, null, contentValues);
         //db.close();
-        return true;
     }
 
     /**
@@ -173,7 +172,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_INSTI,
                 COLUMN_GENAU,
                 COLUMN_EXPTIME,
-                COLUMN_DATE,
+               COLUMN_DATE,
                 COLUMN_DATESYN,
                 COLUMN_STATUS,
                 COLUMN_TIMING,
@@ -223,6 +222,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getFloat(cursor.getColumnIndex(DatabaseHelper.COLUMN_LAT)),
                         cursor.getFloat(cursor.getColumnIndex(DatabaseHelper.COLUMN_LON)),
                         cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_TOUR)),
+
                         cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SCAN)));
 
                 // Adding user record to list
@@ -230,12 +230,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
         }
         cursor.close();
-        //db.close();
-
-
-        // return user list
+////        //db.close();
+////
+////
+////        // return user list
         return scanList;
     }
+
 
     /**
      * This method is to fetch the entries used today and return the list of records
@@ -311,7 +312,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_TIMING)),
                         cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_LAT)),
                         cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_LON)),
-                        cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_TOUR)),
+
+                       cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_TOUR)),
                         cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SCAN)));
 
                 // Adding user record to list
@@ -364,7 +366,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // query the user table
 
         Cursor cursor = db.query(TABLE_SCANS, //Table to query
-                columns,    //columns to return
+               columns,    //columns to return
                 selection,        //columns for the WHERE clause
                 null,        //The values for the WHERE clause
                 null,       //group the rows
@@ -387,7 +389,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_STREET)),
                         cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_INSTI)),
                         cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_GENAU)),
-                        cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EXPTIME)),
+                       cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_EXPTIME)),
                         cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DATE)),
                         cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_DATESYN)),
                         cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_STATUS)),
@@ -395,7 +397,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_LAT)),
                         cursor.getLong(cursor.getColumnIndex(DatabaseHelper.COLUMN_LON)),
                         cursor.getInt(cursor.getColumnIndex(DatabaseHelper.COLUMN_TOUR)),
-                        cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SCAN)));
+                       cursor.getString(cursor.getColumnIndex(DatabaseHelper.COLUMN_SCAN)));
 
                 // Adding user record to list
                 scanList.add(scan);
@@ -409,6 +411,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return scanList;
     }
 
+
     public void deleteScan(int boxid) {
         SQLiteDatabase db = this.getWritableDatabase();
         // delete user record by ID
@@ -417,11 +420,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //db.close();
     }
 
+
     public void deleteAll() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("delete from " + TABLE_SCANS);
         //db.close();
     }
+
 
     public void deleteFull() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -435,14 +440,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     * we have to update the sync status
     * and the second one is the status that will be changed
     * */
-    public boolean updateScanStatus(int boxid, int status, String scan) {
+    public void updateScanStatus(int boxid, int status, String scan) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_STATUS, status);
         contentValues.put(COLUMN_SCAN, scan);
         db.update(TABLE_SCANS, contentValues, COLUMN_BOXID + "=" + boxid, null);
         //db.close();
-        return true;
     }
 
 
@@ -460,41 +464,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return date;
     }
 
-    public boolean updateScanTiming(int boxid, int timing) {
+    public void updateScanTiming(int boxid, int timing) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_TIMING, timing);
         db.update(TABLE_SCANS, contentValues, COLUMN_BOXID + "=" + boxid, null);
         //db.close();
-        return true;
     }
 
-    public boolean updateScanDate(int boxid, String time) {
+    public void updateScanDate(int boxid, String time) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_DATE, time);
         db.update(TABLE_SCANS, contentValues, COLUMN_BOXID + "=" + boxid, null);
         //db.close();
-        return true;
     }
 
-    public boolean updateScanDate2(int boxid, String time2) {
+    public void updateScanDate2(int boxid, String time2) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_DATESYN, time2);
         db.update(TABLE_SCANS, contentValues, COLUMN_BOXID + "=" + boxid, null);
         //db.close();
-        return true;
 
     }
 
-    public boolean updateTodayBoxListID(int boxlistid) {
+    public void updateTodayBoxListID(int boxlistid) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_TODAY_BOXLISTID, boxlistid);
         db.update(TABLE_SCANS, contentValues, null, null);
         //db.close();
-        return true;
     }
 
 
@@ -504,8 +504,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getScans() {
         SQLiteDatabase db = this.getReadableDatabase();
         String sql = "SELECT * FROM " + TABLE_SCANS + " ORDER BY " + COLUMN_SCAN_ID + " ASC;";
-        Cursor c = db.rawQuery(sql, null);
-        return c;
+        return db.rawQuery(sql, null);
     }
 
     /*
@@ -515,15 +514,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getUnsyncedScans() {
         SQLiteDatabase db = this.getReadableDatabase();
         String sql = "SELECT * FROM " + TABLE_SCANS + " WHERE " + COLUMN_STATUS + " = 1;";
-        Cursor c = db.rawQuery(sql, null);
-        return c;
+        return db.rawQuery(sql, null);
     }
 
     public Cursor checkSyncedScans() {
         SQLiteDatabase db = this.getReadableDatabase();
         String sql = "SELECT * FROM " + TABLE_SCANS + " WHERE " + COLUMN_STATUS + " = 2;";
-        Cursor c = db.rawQuery(sql, null);
-        return c;
+        return db.rawQuery(sql, null);
     }
 
     public boolean checkScanExist(String postbox) {
@@ -557,7 +554,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         cursor.close();
         //db.close();
-        return cursorCount > 0;
+        return cursorCount <= 0;
     }
 
     public boolean checkAllSynced() {
@@ -797,12 +794,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         }
         numberOfTours = c.getCount();
-        Log.i("SHOW TOURS debug", "Number of tours: "+numberOfTours +"\n" + "Coursor c: "+c + "\n" + "SQL query: " + sql);
 
        return numberOfTours;
     }
 
-    public ArrayList getTours() {
+    public ArrayList getExp1() {
         SQLiteDatabase db = this.getReadableDatabase();
         String sql = "SELECT DISTINCT " + COLUMN_TOUR + " FROM " + TABLE_SCANS + " ORDER BY "+ COLUMN_TOUR + " ASC";
         ArrayList<String> tours = new ArrayList<>();
@@ -811,10 +807,62 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             tours.add("Hauptstrecke " + c.getString(c.getColumnIndex("tourID")));
         }
-        Log.i("SHOW TOURS debug", "Tours: "+tours +"\n" + "Coursor c: "+c + "\n" + "SQL query: " + sql);
 
         return tours;
     }
+
+    public ArrayList getExp2(Object tourElem) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String tour = tourElem.toString();
+        tour = tour.replaceAll("[^0-9]", "");
+
+        String sql = "SELECT DISTINCT " + COLUMN_CITY + " FROM " + TABLE_SCANS + " WHERE "+ COLUMN_TOUR + " = " + tour;
+
+        ArrayList<String> cities = new ArrayList<>();
+
+        Cursor c = db.rawQuery(sql, null);
+        while (c.moveToNext()){
+
+            cities.add(c.getString(c.getColumnIndex("city")));
+        }
+
+        return cities;
+    }
+
+    public ArrayList getExp3(Object cityElem) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String city = cityElem.toString();
+        city = city.replaceAll("\\p{P}","");
+        String sql = "SELECT DISTINCT " + COLUMN_BOXID + " FROM " + TABLE_SCANS + " WHERE "+ COLUMN_CITY + " LIKE " + "'%" + city + "%'"  + " ORDER BY "+ COLUMN_BOXID + " ASC";
+        ArrayList<String> box = new ArrayList<>();
+
+        Cursor c = db.rawQuery(sql, null);
+        while (c.moveToNext()){
+
+            box.add("Box: " + c.getString(c.getColumnIndex("boxid")));
+        }
+
+        return box;
+    }
+
+
+    /**
+
+    public ArrayList<ArrayList> getExpListData() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String sql = "SELECT *  FROM " + TABLE_SCANS + " ORDER BY "+ COLUMN_TOUR + ", " + COLUMN_CITYID + ", " + COLUMN_BOXID + " ASC";
+        ArrayList<ArrayList> expListData = new ArrayList<>();
+        Cursor c = db.rawQuery(sql, null);
+        while (c.moveToNext()){
+
+            expListData.add(c.getString(c.getColumnIndex("tourID")));
+
+        }
+        Log.i("SHOW TOURS debug", "Tours: "+expListData +"\n" + "Coursor c: "+c + "\n" + "SQL query: " + sql);
+
+        return expListData;
+    }
+*/
 
 
 

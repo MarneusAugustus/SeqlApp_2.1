@@ -1,7 +1,7 @@
 package sql;
 
-/**
- * Created by Angel on 06.02.2018.
+/*
+  Created by Angel on 06.02.2018.
  */
 
 import android.content.ContentValues;
@@ -31,7 +31,7 @@ public class WorkingFlagHelper extends SQLiteOpenHelper {
 
 
     // create table sql query
-    private String CREATE_WORKING_TABLE = "CREATE TABLE " + TABLE_WORKING
+    private final String CREATE_WORKING_TABLE = "CREATE TABLE " + TABLE_WORKING
             + "("
             + COLUMN_WORKING_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + COLUMN_WORKING + " INTEGER ,"
@@ -43,7 +43,7 @@ public class WorkingFlagHelper extends SQLiteOpenHelper {
 
 
     // drop table sql query
-    private String DROP_WORKING_TABLE = "DROP TABLE IF EXISTS " + TABLE_WORKING;
+    private final String DROP_WORKING_TABLE = "DROP TABLE IF EXISTS " + TABLE_WORKING;
 
     /**
      * Constructor
@@ -72,11 +72,10 @@ public class WorkingFlagHelper extends SQLiteOpenHelper {
 
     /**
      * This method is to create user record
-     *
-     * @param working
+     *  @param working
      * @param date
      */
-    public boolean startWork(int working, Long date) {
+    public void startWork(int working, Long date) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -92,34 +91,31 @@ public class WorkingFlagHelper extends SQLiteOpenHelper {
         db.insert(TABLE_WORKING, null, values);
         db.close();
 
-        return true;
     }
 
 
-    public boolean updateWork(int working, Long date) {
+    public void updateWork(int working, Long date) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         String sql = "UPDATE " + TABLE_WORKING + " SET " + COLUMN_WORKING + " = " + working + " , " + COLUMN_DATE + " = " + date + " WHERE " + COLUMN_FLAGNAME + " = 'workflag'";
         db.execSQL(sql);
-        /**
+        /*
          contentValues.put(COLUMN_WORKING, working);
          contentValues.put(COLUMN_DATE, date);
          db.update(TABLE_WORKING, contentValues, COLUMN_WORKING_ID + "= 1", null);*/
         db.close();
-        return true;
     }
 
-    public boolean updateTime(Long time) {
+    public void updateTime(Long time) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         String sql = "UPDATE " + TABLE_WORKING + " SET " + COLUMN_TIME + " = " + time + " WHERE " + COLUMN_FLAGNAME + " = 'workflag'";
         db.execSQL(sql);
-        /**
+        /*
          contentValues.put(COLUMN_WORKING, working);
          contentValues.put(COLUMN_DATE, date);
          db.update(TABLE_WORKING, contentValues, COLUMN_WORKING_ID + "= 1", null);*/
         db.close();
-        return true;
     }
 
     public Long getTime() {
@@ -137,14 +133,16 @@ public class WorkingFlagHelper extends SQLiteOpenHelper {
     }
 
 
-    public boolean updateDate(long date) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COLUMN_DATE, date);
-        db.update(TABLE_WORKING, contentValues, COLUMN_WORKING_ID + "= 1", null);
-        db.close();
-        return true;
-    }
+// --Commented out by Inspection START (08.02.19 00:43):
+//    public boolean updateDate(long date) {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        ContentValues contentValues = new ContentValues();
+//        contentValues.put(COLUMN_DATE, date);
+//        db.update(TABLE_WORKING, contentValues, COLUMN_WORKING_ID + "= 1", null);
+//        db.close();
+//        return true;
+//    }
+// --Commented out by Inspection STOP (08.02.19 00:43)
 
     public int getWorkingStatus() {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -188,11 +186,13 @@ public class WorkingFlagHelper extends SQLiteOpenHelper {
         return date;
     }
 
-    public void deleteAll() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("delete from " + TABLE_WORKING);
-        db.close();
-    }
+// --Commented out by Inspection START (08.02.19 00:43):
+//    public void deleteAll() {
+//        SQLiteDatabase db = this.getWritableDatabase();
+//        db.execSQL("delete from " + TABLE_WORKING);
+//        db.close();
+//    }
+// --Commented out by Inspection STOP (08.02.19 00:43)
 
     public void deleteFull() {
         SQLiteDatabase db = this.getWritableDatabase();

@@ -1,7 +1,7 @@
 package sql;
 
-/**
- * Created by Angel on 06.02.2018.
+/*
+  Created by Angel on 06.02.2018.
  */
 
 import android.content.ContentValues;
@@ -44,21 +44,6 @@ public class LocationHelper extends SQLiteOpenHelper {
     private static final String COLUMN_STATUS = "status";
 
 
-    // create table sql query
-    private String CREATE_LOCATIONS_TABLE = "CREATE TABLE " + TABLE_LOCATIONS
-            + "("
-            + COLUMN_LOCATION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-            + COLUMN_LOCATION + " TEXT, "
-            + COLUMN_TIME + " TEXT, "
-            + COLUMN_URL + " TEXT, "
-            + COLUMN_STATUS + " INTEGER"
-
-            + ")";
-
-
-    // drop table sql query
-    private String DROP_LOCATIONS_TABLE = "DROP TABLE IF EXISTS " + TABLE_LOCATIONS;
-
     /**
      * Constructor
      *
@@ -70,6 +55,16 @@ public class LocationHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        // create table sql query
+        String CREATE_LOCATIONS_TABLE = "CREATE TABLE " + TABLE_LOCATIONS
+                + "("
+                + COLUMN_LOCATION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                + COLUMN_LOCATION + " TEXT, "
+                + COLUMN_TIME + " TEXT, "
+                + COLUMN_URL + " TEXT, "
+                + COLUMN_STATUS + " INTEGER"
+
+                + ")";
         db.execSQL(CREATE_LOCATIONS_TABLE);
     }
 
@@ -78,6 +73,8 @@ public class LocationHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
         //Drop User Table if exist
+        // drop table sql query
+        String DROP_LOCATIONS_TABLE = "DROP TABLE IF EXISTS " + TABLE_LOCATIONS;
         db.execSQL(DROP_LOCATIONS_TABLE);
 
         // Create tables again
@@ -89,7 +86,7 @@ public class LocationHelper extends SQLiteOpenHelper {
      *
      * @param locations
      */
-    public Locations addLocation(Locations locations, String time, String url, int status) {
+    public void addLocation(Locations locations, String time, String url, int status) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -104,14 +101,13 @@ public class LocationHelper extends SQLiteOpenHelper {
         db.close();
 
         // Return user
-        return locations;
     }
 
-    /**
-     * This method is to fetch all user and return the list of user records
-     *
-     * @return list
-     */
+//    /**
+//     * This method is to fetch all user and return the list of user records
+//     *
+//     * @return list
+//     */
     public List<Locations> getAllLocations() {
         // array of columns to fetch
         String[] columns = {
@@ -173,7 +169,7 @@ public class LocationHelper extends SQLiteOpenHelper {
 
     public void deleteLocationById(int locationID) {
         SQLiteDatabase db = this.getWritableDatabase();
-        // delete user record by ID
+//        // delete user record by ID
         db.delete(TABLE_LOCATIONS, COLUMN_LOCATION_ID + " = " + locationID, null);
         db.close();
     }
@@ -194,7 +190,7 @@ public class LocationHelper extends SQLiteOpenHelper {
         JSONArray resultSet = new JSONArray();
 
         cursor.moveToFirst();
-        while (cursor.isAfterLast() == false) {
+        while (!cursor.isAfterLast()) {
 
             int totalColumn = cursor.getColumnCount();
             JSONObject rowObject = new JSONObject();
@@ -239,8 +235,7 @@ public class LocationHelper extends SQLiteOpenHelper {
     public Cursor getUnsyncedLocations() {
         SQLiteDatabase db = this.getReadableDatabase();
         String sql = "SELECT * FROM " + TABLE_LOCATIONS + " WHERE " + COLUMN_STATUS + " = 1;";
-        Cursor c = db.rawQuery(sql, null);
-        return c;
+        return db.rawQuery(sql, null);
     }
 
 
@@ -253,13 +248,12 @@ public class LocationHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean updateStatus(int id, int status) {
+    public void updateStatus(int id, int status) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_STATUS, status);
         db.update(TABLE_LOCATIONS, contentValues, COLUMN_LOCATION_ID + "= " + id, null);
         db.close();
-        return true;
     }
 
     public void deleteAll() {

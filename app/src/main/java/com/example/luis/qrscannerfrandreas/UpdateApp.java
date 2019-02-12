@@ -32,11 +32,10 @@ import sql.WorkingFlagHelper;
  * Created by Angel on 06.03.2018.
  */
 public class UpdateApp extends Activity {
-    boolean isDeleted;
-    UrlHelper urlHelper;
-    WorkingFlagHelper workingFlagHelper;
-    DatabaseHelper databaseHelper;
-    private BroadcastReceiver receiver;
+    private boolean isDeleted;
+    private UrlHelper urlHelper;
+    private WorkingFlagHelper workingFlagHelper;
+    private DatabaseHelper databaseHelper;
     private long enqueue;
     private DownloadManager dm;
 
@@ -44,15 +43,13 @@ public class UpdateApp extends Activity {
         return findBinary("su");
     }
 
-    public static boolean findBinary(String binaryName) {
+    private static boolean findBinary(String binaryName) {
         boolean found = false;
-        if (!found) {
-            String[] places = {"/sbin/", "/system/bin/", "/system/xbin/", "/data/local/xbin/", "/data/local/bin/", "/system/sd/xbin/", "/system/bin/failsafe/", "/data/local/"};
-            for (String where : places) {
-                if (new File(where + binaryName).exists()) {
-                    found = true;
-                    break;
-                }
+        String[] places = {"/sbin/", "/system/bin/", "/system/xbin/", "/data/local/xbin/", "/data/local/bin/", "/system/sd/xbin/", "/system/bin/failsafe/", "/data/local/"};
+        for (String where : places) {
+            if (new File(where + binaryName).exists()) {
+                found = true;
+                break;
             }
         }
         return found;
@@ -71,48 +68,51 @@ public class UpdateApp extends Activity {
         builder.setIcon(R.mipmap.ic_fg_qr);
         builder.setMessage("Eine neue Version ist verfügbar." + "\n" + "Jetzt laden?");
         builder.getContext().setTheme(R.style.AppTheme_NoActionBar);
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                if (haveStoragePermission()) {
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            if (haveStoragePermission()) {
 
-                    Toast.makeText(getApplicationContext(), "Das Update wird geladen. Bitte warten", Toast.LENGTH_LONG).show();
-                    dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                Toast.makeText(getApplicationContext(), "Das Update wird geladen. Bitte warten", Toast.LENGTH_LONG).show();
+                dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
 
-                    File file = new File("/mnt/sdcard/Download/SeqlApp.apk");
-                    if (file.exists()) {
+                File file = new File("/mnt/sdcard/Download/SeqlApp.apk");
+                if (file.exists()) {
 
-                        isDeleted = file.delete();
-                        deleteAndInstall();
-                    } else {
-                        firstTimeInstall();
-                    }
+                    isDeleted = file.delete();
+                    deleteAndInstall();
+                } else {
+                    firstTimeInstall();
                 }
             }
         });
-        builder.setNegativeButton("Später erinnern", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                UpdateApp.this.finish();
-                Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(mainIntent);
-            }
+        builder.setNegativeButton("Später erinnern", (dialog, which) -> {
+            UpdateApp.this.finish();
+            Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(mainIntent);
         });
         builder.show();
     }
 
     private void firstTimeInstall() {
-        Log.d("UPDATE debug", "First Time? Or deleted from folder");
+        if (App.debug == 1) {
+
+            Log.d("UPDATE debug", "First Time? Or deleted from folder");
+        }
         downloadAndInstall();
     }
 
     private void deleteAndInstall() {
         if (isDeleted) {
-            Log.d("UPDATE debug", "deleted file: " + String.valueOf(isDeleted));
+
+            if (App.debug == 1) {
+                Log.d("UPDATE debug", "deleted file: " + String.valueOf(isDeleted));
+            }
             downloadAndInstall();
 
         } else {
-            Log.d("UPDATE debug", "Not deleted: " + String.valueOf(isDeleted));
+            if (App.debug == 1) {
+
+                Log.d("UPDATE debug", "Not deleted: " + String.valueOf(isDeleted));
+            }
             Toast.makeText(getApplicationContext(), "Fehler beim updaten! Bitte später erneut versuchen", Toast.LENGTH_LONG).show();
         }
     }
@@ -124,7 +124,7 @@ public class UpdateApp extends Activity {
         enqueue = dm.enqueue(request);
 
 
-        receiver = new BroadcastReceiver() {
+        BroadcastReceiver receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -140,15 +140,18 @@ public class UpdateApp extends Activity {
                         int columnIndex = c.getColumnIndex(DownloadManager.COLUMN_STATUS);
                         if (DownloadManager.STATUS_SUCCESSFUL == c.getInt(columnIndex)) {
                             String uriString = c.getString(c.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI));
+                            if (App.debug == 1) {
 
-                            Log.d("UPDATE debug", "Successfull download: " + uriString);
-
+                                Log.d("UPDATE debug", "Successfull download: " + uriString);
+                            }
                             if (downloadId == c.getInt(0)) {
-                                Log.d("UPDATE debug", "Download path: " + c.getString(c.getColumnIndex("local_uri")));
+                                if (App.debug == 1) {
 
+                                    Log.d("UPDATE debug", "Download path: " + c.getString(c.getColumnIndex("local_uri")));
 
-                                Log.d("isRooted:", String.valueOf(isRooted()));
-                                if (isRooted() == false) {
+                                    Log.d("isRooted:", String.valueOf(isRooted()));
+                                }
+                                if (!isRooted()) {
                                     //if your device is not rooted
                                     //File file = new File(Environment.getExternalStorageDirectory(), "SeqlApp.apk");
 
@@ -157,8 +160,11 @@ public class UpdateApp extends Activity {
                                     intent_install.setDataAndType(FileProvider.getUriForFile(UpdateApp.this,
                                             BuildConfig.APPLICATION_ID + ".provider", new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + "SeqlApp.apk")), "application/vnd.android.package-archive");
 
-                                    Log.d("UPDATE debug", "Enviroment.getExtStor(): " + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + "SeqlApp.apk");
-                                    Toast.makeText(getApplicationContext(), "Installation startet gleich. Bitte warten.", Toast.LENGTH_LONG).show();
+                                    if (App.debug == 1) {
+
+                                        Log.d("UPDATE debug", "Enviroment.getExtStor(): " + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + "SeqlApp.apk");
+                                    }
+                                        Toast.makeText(getApplicationContext(), "Installation startet gleich. Bitte warten.", Toast.LENGTH_LONG).show();
                                     startActivity(intent_install);
                                     unregisterReceiver(this);
                                     urlHelper.deleteFull();
@@ -169,15 +175,23 @@ public class UpdateApp extends Activity {
                                     //if your device is rooted then you can install or update app in background directly
                                     Toast.makeText(getApplicationContext(), "Installation startet gleich. Bitte warten.", Toast.LENGTH_LONG).show();
                                     File file = new File("/sdcard/Download/SeqlApp.apk");
-                                    Log.d("UPDATE debug", "installer: /sdcard/Download/SeqlApp.apk");
+                                    if (App.debug == 1) {
+
+                                        Log.d("UPDATE debug", "installer: /sdcard/Download/SeqlApp.apk");
+                                    }
                                     if (file.exists()) {
                                         try {
                                             String command;
-                                            Log.d("IN File exists:", "/mnt/sdcard/Download/SeqlApp.apk");
+                                            if (App.debug == 1) {
 
+                                                Log.d("IN File exists:", "/mnt/sdcard/Download/SeqlApp.apk");
+                                            }
                                             command = "pm install -r " + "/mnt/sdcard/Download/SeqlApp.apk";
-                                            Log.d("COMMAND:", command);
-                                            Process proc = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
+                                            if (App.debug == 1) {
+
+                                                Log.d("COMMAND:", command);
+                                            }
+                                                Process proc = Runtime.getRuntime().exec(new String[]{"su", "-c", command});
                                             proc.waitFor();
                                             Toast.makeText(getApplicationContext(), "Update erfolgreich installiert", Toast.LENGTH_LONG).show();
                                             urlHelper.updateDate(Calendar.getInstance().getTime().getTime());
@@ -198,20 +212,28 @@ public class UpdateApp extends Activity {
         registerReceiver(receiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
-    public boolean haveStoragePermission() {
+    private boolean haveStoragePermission() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
-                Log.e("Permission error", "You have permission");
+                if (App.debug == 1) {
+
+                    Log.e("Permission error", "You have permission");
+                }
                 return true;
             } else {
+                if (App.debug == 1) {
 
-                Log.e("Permission error", "You have asked for permission");
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                    Log.e("Permission error", "You have asked for permission");
+                }
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 return false;
             }
         } else { //you dont need to worry about these stuff below api level 23
-            Log.e("Permission error", "You already have the permission");
+            if (App.debug == 1) {
+
+                Log.e("Permission error", "You already have the permission");
+            }
             return true;
         }
     }

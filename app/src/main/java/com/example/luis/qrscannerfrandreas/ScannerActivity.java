@@ -44,12 +44,7 @@ public class ScannerActivity extends AppCompatActivity implements
             barcodeScannerView.setTorchOn();
             isFlashLightOn = true;
 
-            switchFlashlightButton.setOnClickListener(new View.OnClickListener() {
-                                                          @Override
-                                                          public void onClick(View view) {
-                                                              switchFlashlight();
-                                                          }
-                                                      }
+            switchFlashlightButton.setOnClickListener(view -> switchFlashlight()
             );
         }
 
@@ -70,7 +65,7 @@ public class ScannerActivity extends AppCompatActivity implements
                 .hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
     }
 
-    public void switchFlashlight() {
+    private void switchFlashlight() {
         if (isFlashLightOn) {
             barcodeScannerView.setTorchOff();
             isFlashLightOn = false;

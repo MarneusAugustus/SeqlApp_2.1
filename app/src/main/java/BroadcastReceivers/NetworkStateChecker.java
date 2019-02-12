@@ -8,11 +8,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
+import com.example.luis.qrscannerfrandreas.App;
 import com.example.luis.qrscannerfrandreas.MainActivity;
 import com.example.luis.qrscannerfrandreas.VolleySingleton;
 
@@ -53,6 +53,7 @@ public class NetworkStateChecker extends BroadcastReceiver {
         locationHelper = new LocationHelper(context);
 
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        assert cm != null;
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
 
         //if there is a network
@@ -60,7 +61,7 @@ public class NetworkStateChecker extends BroadcastReceiver {
             //if connected to wifi or mobile data plan
             if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI || activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
 
-                //getting all the unsynced names
+                //getting all the unsynced scans
                 Cursor cursorScan = databaseHelper.getUnsyncedScans();
                 if (cursorScan.moveToFirst()) {
                     do {
@@ -76,7 +77,7 @@ public class NetworkStateChecker extends BroadcastReceiver {
                 Cursor cursorLoc = locationHelper.getUnsyncedLocations();
                 if (cursorLoc.moveToFirst()) {
                     do {
-                        //calling the method to save the unsynced name to MySQL
+                        //calling the method to save the unsynced location to MySQL
                         saveLoc(
                                 cursorLoc.getInt(cursorLoc.getColumnIndex(LocationHelper.COLUMN_LOCATION_ID)),
                                 cursorLoc.getString(cursorLoc.getColumnIndex(LocationHelper.COLUMN_URL))
@@ -98,36 +99,32 @@ public class NetworkStateChecker extends BroadcastReceiver {
         theTime = Calendar.getInstance().getTime();
         String currentTime = df.format(theTime);
         URL_SAVE_SCAN = scan + "&" + "tos=" + theTime.getTime() / 1000;
-        Log.i("URLCALL debug", "Send URL: " + URL_SAVE_SCAN + "\n" + "Broadcast.saveScan()");
+        if (App.debug == 1) {
 
+            Log.i("URLCALL debug", "Send URL: " + URL_SAVE_SCAN + "\n" + "Broadcast.saveScan()");
+        }
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_SAVE_SCAN,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject obj = new JSONObject(response);
-                            if (obj.getInt("error") == 0) {
-                                //updating the status in sqlite
-                                DateFormat df = new SimpleDateFormat("HH:mm:ss");
-                                theTime = Calendar.getInstance().getTime();
-                                databaseHelper.updateScanStatus(id, 2, URL_SAVE_SCAN);
-                                databaseHelper.updateScanDate2(id, df.format(theTime));
-                                //sending the broadcast to refresh the list
-                                context.sendBroadcast(new Intent(MainActivity.DATA_SAVED_BROADCAST));
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getInt("error") == 0) {
+                            //updating the status in sqlite
+                            DateFormat df1 = new SimpleDateFormat("HH:mm:ss");
+                            theTime = Calendar.getInstance().getTime();
+                            databaseHelper.updateScanStatus(id, 2, URL_SAVE_SCAN);
+                            databaseHelper.updateScanDate2(id, df1.format(theTime));
+                            //sending the broadcast to refresh the list
+                            context.sendBroadcast(new Intent(MainActivity.DATA_SAVED_BROADCAST));
                         }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
+                error -> {
 
-                    }
                 }) {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("scan", scan);
                 return params;
@@ -142,34 +139,33 @@ public class NetworkStateChecker extends BroadcastReceiver {
         theTime = Calendar.getInstance().getTime();
         String currentTime = df.format(theTime);
         URL_SAVE_SCAN = scan;
-        Log.i("URLCALL debug", "Send URL: " + URL_SAVE_SCAN + "\n" + "Broadcast.saveLoc()");
+        if (App.debug == 1) {
 
+            Log.i("URLCALL debug", "Send URL: " + URL_SAVE_SCAN + "\n" + "Broadcast.saveLoc()");
+        }
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL_SAVE_SCAN,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            JSONObject obj = new JSONObject(response);
-                            if (obj.getInt("error") == 0) {
-                                locationHelper.updateStatus(id, 2);
-                            } else {
+                response -> {
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        if (obj.getInt("error") == 0) {
+                            locationHelper.updateStatus(id, 2);
+                        } else {
+                            if (App.debug == 1) {
+
                                 Log.i("URLCALL debug", "Server responded with error: " + obj.getInt("error") + "\n" + "Broadcast.saveLoc()");
-                                locationHelper.updateStatus(id, 2);
-                                //locationHelper.deleteLocationById(id);
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                                locationHelper.updateStatus(id, 2);
+                            //locationHelper.deleteLocationById(id);
                         }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
+                error -> {
 
-                    }
                 }) {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("scan", scan);
                 return params;

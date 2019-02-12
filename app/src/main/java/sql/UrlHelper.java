@@ -1,7 +1,7 @@
 package sql;
 
-/**
- * Created by Angel on 06.02.2018.
+/*
+  Created by Angel on 06.02.2018.
  */
 
 import android.content.ContentValues;
@@ -30,7 +30,7 @@ public class UrlHelper extends SQLiteOpenHelper {
 
 
     // create table sql query
-    private String CREATE_URL_TABLE = "CREATE TABLE " + TABLE_URL
+    private final String CREATE_URL_TABLE = "CREATE TABLE " + TABLE_URL
             + "("
             + COLUMN_URL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + COLUMN_URL + " VARCHAR, "
@@ -41,7 +41,7 @@ public class UrlHelper extends SQLiteOpenHelper {
 
 
     // drop table sql query
-    private String DROP_URL_TABLE = "DROP TABLE IF EXISTS " + TABLE_URL;
+    private final String DROP_URL_TABLE = "DROP TABLE IF EXISTS " + TABLE_URL;
 
     /**
      * Constructor
@@ -71,7 +71,7 @@ public class UrlHelper extends SQLiteOpenHelper {
     /**
      * This method is to create user record
      */
-    public boolean newUrl(String url, String version) {
+    public void newUrl(String url, String version) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -86,31 +86,27 @@ public class UrlHelper extends SQLiteOpenHelper {
         db.insert(TABLE_URL, null, values);
         db.close();
 
-        return true;
     }
 
-    public boolean updateDate(Long date) {
+    public void updateDate(Long date) {
         SQLiteDatabase db = this.getWritableDatabase();
         String sql = "UPDATE " + TABLE_URL + " SET " + COLUMN_DATE + " = " + date + " WHERE " + COLUMN_URL_ID + " =1";
         db.execSQL(sql);
         db.close();
-        return true;
     }
 
-    public boolean updateUrl(String url) {
+    public void updateUrl(String url) {
         SQLiteDatabase db = this.getWritableDatabase();
         String sql = "UPDATE " + TABLE_URL + " SET " + COLUMN_URL + " = " + "'" + url + "'" + " WHERE " + COLUMN_URL_ID + " =1";
         db.execSQL(sql);
         db.close();
-        return true;
     }
 
-    public boolean updateVersion(String version) {
+    public void updateVersion(String version) {
         SQLiteDatabase db = this.getWritableDatabase();
         String sql = "UPDATE " + TABLE_URL + " SET " + COLUMN_VERSION + " = " + "'" + version + "'" + " WHERE " + COLUMN_URL_ID + " =1";
         db.execSQL(sql);
         db.close();
-        return true;
     }
 
     public String getUrl() {
@@ -127,19 +123,21 @@ public class UrlHelper extends SQLiteOpenHelper {
         return url;
     }
 
-    public String getVersion() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String sql = "SELECT " + COLUMN_VERSION + " FROM " + TABLE_URL + " WHERE " + COLUMN_URL_ID + " = 1";
-        String version = null;
-        Cursor c = db.rawQuery(sql, null);
-        if (c.getCount() == 1) {
-            c.moveToFirst();
-            version = (c.getString(c.getColumnIndex("version")));
-        }
-        c.close();
-        db.close();
-        return version;
-    }
+// --Commented out by Inspection START (08.02.19 00:43):
+//    public String getVersion() {
+//        SQLiteDatabase db = this.getReadableDatabase();
+//        String sql = "SELECT " + COLUMN_VERSION + " FROM " + TABLE_URL + " WHERE " + COLUMN_URL_ID + " = 1";
+//        String version = null;
+//        Cursor c = db.rawQuery(sql, null);
+//        if (c.getCount() == 1) {
+//            c.moveToFirst();
+//            version = (c.getString(c.getColumnIndex("version")));
+//        }
+//        c.close();
+//        db.close();
+//        return version;
+//    }
+// --Commented out by Inspection STOP (08.02.19 00:43)
 
     public Long getDate() {
         SQLiteDatabase db = this.getReadableDatabase();

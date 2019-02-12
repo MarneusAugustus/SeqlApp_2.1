@@ -10,7 +10,6 @@ import java.util.Calendar;
 
 public class TimeCalculator {
 
-    public static boolean valid = false;
 
     public static boolean isTimeBetweenTwoTime(String initialTime, String finalTime, String currentTime) throws ParseException {
         String reg = "^([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$";

@@ -15,9 +15,7 @@
     <color name="textAlertDialog">#15162e</color>
     <color name="positiveAlertDialogButton">#2c5b2e</color>
     <color name="negativeAlertDialogButton">#662626</color>
-    <color name="scanStatusEarly">#fede0a</color>
     <color name="scanStatusUnscanned">#c00000</color>
-    <color name="scanStatusCorrect">#00c000</color>
     <color name="scanListFrame">#ffffff</color>
 
 

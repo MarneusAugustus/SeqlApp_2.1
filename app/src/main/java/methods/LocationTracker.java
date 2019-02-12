@@ -7,6 +7,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.luis.qrscannerfrandreas.App;
 import com.example.luis.qrscannerfrandreas.MainActivity;
 
 import java.text.DateFormat;
@@ -23,19 +24,25 @@ import sql.LocationHelper;
 
 public class LocationTracker {
 
-    public Date startTimestamp, timestamp;
+    public Date startTimestamp;
+    private Date timestamp;
     public Locations locations = new Locations();
     public LocationService locationService = new LocationService();
-    public SendToServer sendToServer = new SendToServer();
-    LocationManager locationManager;
-    Location location;
+    private final SendToServer sendToServer = new SendToServer();
+    private LocationManager locationManager;
+    private Location location;
     MainActivity mainActivity;
-    boolean gpsEnabled;
-    boolean networkEnabled;
-    Context context;
-    public static String addr, lon, lat, alt, acc, provider;
+    private boolean gpsEnabled;
+    private boolean networkEnabled;
+    private Context context;
+    public static String addr;
+public static String lon;
+    public static String lat;
+    private static String alt;
+    public static String acc;
+    public static String provider;
     public LocationHelper locationHelper = new LocationHelper(context);
-    public LocationListener locationListener = new LocationListener() {
+    public final LocationListener locationListener = new LocationListener() {
 
         @Override
         public void onLocationChanged(Location location) {
@@ -45,8 +52,11 @@ public class LocationTracker {
             timestamp = Calendar.getInstance().getTime();
 
             if (location == null) {
-                Log.i("LOCATION debug", "Currently, no locations can be provided.");
-            } else {
+                if (App.debug == 1) {
+
+                    Log.i("LOCATION debug", "Currently, no locations can be provided.");
+                }
+                } else {
                 lon = String.valueOf(location.getLongitude());
                 lat = String.valueOf(location.getLatitude());
                 alt = String.valueOf(location.getAltitude());
@@ -54,8 +64,10 @@ public class LocationTracker {
                 provider = String.valueOf(location.getProvider());
                 if (Float.valueOf(acc) < 25) {
                     sendToServer.saveLocationsToServer(lon,lat,acc,provider, MainActivity.URL_SEND_LOC, timestamp);
-                    Log.i("LOCATION debug", "Saving location and sending it to server. The Accuracy has to be over 25m. Current Accuracy: " + acc + "m");
+                    if (App.debug == 1) {
 
+                        Log.i("LOCATION debug", "Saving location and sending it to server. The Accuracy has to be over 25m. Current Accuracy: " + acc + "m");
+                    }
                 }
             }
         }
@@ -113,9 +125,15 @@ public class LocationTracker {
                 if (location != null) {
                     location = locationManager
                             .getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                    Log.i("LOCATION debug", "Getting Location with GPS");
+                    if (App.debug == 1) {
+
+                        Log.i("LOCATION debug", "Getting Location with GPS");
+                    }
                 } else {
-                    Log.i("LOCATION debug", " location = null");
+                    if (App.debug == 1) {
+
+                        Log.i("LOCATION debug", " location = null");
+                    }
                 }
 
             }
@@ -126,9 +144,15 @@ public class LocationTracker {
                 if (location != null) {
                     location = locationManager
                             .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                    Log.i("LOCATION debug", "Getting Location with GPS");
+                    if (App.debug == 1) {
+
+                        Log.i("LOCATION debug", "Getting Location with GPS");
+                    }
                 } else {
-                    Log.i("LOCATION debug", " location = null");
+                    if (App.debug == 1) {
+
+                        Log.i("LOCATION debug", " location = null");
+                    }
                 }
             }
 

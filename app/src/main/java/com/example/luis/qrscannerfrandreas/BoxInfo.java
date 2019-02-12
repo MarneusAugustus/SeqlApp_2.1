@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import adapters.CustomExpandableListAdapter;
 import adapters.UsersRecyclerAdapter;
 import methods.MyBounceInterpolator;
 import sql.DatabaseHelper;
@@ -22,25 +23,33 @@ import static android.graphics.Color.WHITE;
 
 public class BoxInfo extends AppCompatActivity {
 
-    Button buttonBack, buttonMaps;
-    TextView textViewBoxID, textViewBox, textViewInsti, textViewStreet, textViewGenau, textViewCity, textViewExpectedTime, textButton;
-    LinearLayout linearLayout;
-    DatabaseHelper databaseHelper;
-    UsersRecyclerAdapter usersRecyclerAdapter;
-    int boxid;
-    int timing;
-    int status;
-    float lat;
-    float lon;
-    Uri boxLocation;
-    boolean alreadyScaned;
+    private Button buttonBack;
+    private Button buttonMaps;
+    private TextView textViewBoxID;
+    private TextView textViewBox;
+    private TextView textViewInsti;
+    private TextView textViewStreet;
+    private TextView textViewGenau;
+    private TextView textViewCity;
+    private TextView textViewExpectedTime;
+    private TextView textButton;
+    private LinearLayout linearLayout;
+    private DatabaseHelper databaseHelper;
+    CustomExpandableListAdapter customExpandableListAdapter;
+    private int boxid;
+    private int timing;
+    private int status;
+    private float lat;
+    private float lon;
+    private Uri boxLocation;
+    private boolean alreadyScaned;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_box_info);
-        boxid = usersRecyclerAdapter.boxid;
+        boxid = customExpandableListAdapter.boxid;
         initObjects();
         timing = databaseHelper.getTiming(boxid);
         status = databaseHelper.getStatus(boxid);
@@ -50,34 +59,27 @@ public class BoxInfo extends AppCompatActivity {
         boxLocation = Uri.parse("google.navigation:q=" + Float.toString(lat) + "," + Float.toString(lon));
         initViews();
 
-        buttonBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        buttonBack.setOnClickListener(v -> {
 
-                Intent mainIntent = new Intent(getApplicationContext(), ScanListActivity.class);
-                startActivity(mainIntent);
-            }
+            //Intent mainIntent = new Intent(getApplicationContext(), ScanListActivity.class);
+            //startActivity(mainIntent);
+
+            Intent scansIntent = new Intent(getApplicationContext(), ExpandableListMain.class);
+            startActivity(scansIntent);
         });
 
-        buttonMaps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final Animation myAnim = AnimationUtils.loadAnimation(BoxInfo.this, R.anim.bounce);
-                // Use bounce interpolator with amplitude 0.2 and frequency 20
-                MyBounceInterpolator interpolator = new MyBounceInterpolator(0.05, 40);
-                myAnim.setInterpolator(interpolator);
-                buttonMaps.startAnimation(myAnim);
-                new AlertDialog.Builder(BoxInfo.this, R.style.AlertDialogStyle)
-                        .setMessage("Möchten Sie zum Standort der Box geführt werden?")
-                        .setIcon(R.drawable.ic_directions_black_24dp)
-                        .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                showMap(boxLocation);
-                            }
-                        })
-                        .setNegativeButton("Nein", null)
-                        .show();
-            }
+        buttonMaps.setOnClickListener(v -> {
+            final Animation myAnim = AnimationUtils.loadAnimation(BoxInfo.this, R.anim.bounce);
+            // Use bounce interpolator with amplitude 0.2 and frequency 20
+            MyBounceInterpolator interpolator = new MyBounceInterpolator(0.05, 40);
+            myAnim.setInterpolator(interpolator);
+            buttonMaps.startAnimation(myAnim);
+            new AlertDialog.Builder(BoxInfo.this, R.style.AlertDialogStyle)
+                    .setMessage("Möchten Sie zum Standort der Box geführt werden?")
+                    .setIcon(R.drawable.ic_directions_black_24dp)
+                    .setPositiveButton("Ja", (dialog, which) -> showMap(boxLocation))
+                    .setNegativeButton("Nein", null)
+                    .show();
         });
     }
 
@@ -143,7 +145,7 @@ public class BoxInfo extends AppCompatActivity {
     }
 
 
-    public void showMap(Uri geoLocation) {
+    private void showMap(Uri geoLocation) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(geoLocation);
         if (intent.resolveActivity(getPackageManager()) != null) {

@@ -38,42 +38,55 @@ import sql.WorkingFlagHelper;
 
 public class SelectCityActivity extends AppCompatActivity {
 
-    private static Bundle bundle = new Bundle();
-    public String tour;
+private static Bundle bundle = new Bundle();
+ public String tour;
     public boolean startIsChecked;
     public int buttonType;
-    Intent mLocationIntent;
-    Context ctx;
-    ToggleButton start;
-    Button buttonBack, stop, reset;
+    private Intent mLocationIntent;
+    private Context ctx;
+    private ToggleButton start;
+    private Button buttonBack;
+    Button stop;
     long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L;
-    DateFormat df, dfFull, dfDate;
-    Date timestamp1;
-    Date timestamp2;
+    private DateFormat df;
+    private DateFormat dfFull;
+
+    private DateFormat dfDate;
+private Date timestamp1;
+
+    private Date timestamp2;
     Date startTime;
+
     Date todaysDate;
     Date workingDate;
     Date todayAtFour;
-    Locations locations;
-    WorkingFlagHelper workingFlagHelper;
+
+    private Locations locations;
+
+    private WorkingFlagHelper workingFlagHelper;
     MainActivity mainActivity;
-    LocationHelper locationHelper;
-    LocationTracker locationTracker;
-    SendToServer sendToServer;
+
+    private LocationHelper locationHelper;
+
+
+    private LocationTracker locationTracker;
+    private SendToServer sendToServer;
     String endTimer;
-    TextView textView, textViewTime, textViewButton;
+    private TextView textView;
+    private TextView textViewTime;
+    private TextView textViewButton;
     Context mContext;
-    Handler handler;
+    private Handler handler;
     int showWorkingFlag;
     long showTime;
-    TimeCalculator timeCalculator;
+    private TimeCalculator timeCalculator;
     int Hours, Seconds, Minutes, MilliSeconds;
-    String[] ListElements = new String[]{};
-    List<String> ListElementsArrayList;
-    ArrayAdapter<String> adapter;
+    private final String[] ListElements = new String[]{};
+    private List<String> ListElementsArrayList;
+    private ArrayAdapter<String> adapter;
     private LocationService mLocationService;
 
-    public Context getCtx() {
+    private Context getCtx() {
         return ctx;
     }
 
@@ -109,7 +122,10 @@ public class SelectCityActivity extends AppCompatActivity {
         if (workingFlagHelper.getWorkingStatus() == 1) {
             start = findViewById(R.id.start);
             start.setChecked(true);
-            Log.i("WORKING debug", "Working Flag was set on 1.");
+            if (App.debug == 1) {
+
+                Log.i("WORKING debug", "Working Flag was set on 1.");
+            }
             textView.setText("Letzter Start: " + df.format(workingFlagHelper.getDate()) + "Uhr");
             try {
                 timestamp1 = df.parse(df.format(workingFlagHelper.getDate()));
@@ -123,7 +139,10 @@ public class SelectCityActivity extends AppCompatActivity {
         } else {
             start = findViewById(R.id.start);
             start.setChecked(false);
-            Log.i("WORKING debug", "Working Flag was set on 0.");
+            if (App.debug == 1) {
+
+                Log.i("WORKING debug", "Working Flag was set on 0.");
+            }
         }
 
         if (workingFlagHelper.getTime() != 0) {
@@ -133,123 +152,127 @@ public class SelectCityActivity extends AppCompatActivity {
 
         handler = new Handler();
 
-        ListElementsArrayList = new ArrayList<String>(Arrays.asList(ListElements));
+        ListElementsArrayList = new ArrayList<>(Arrays.asList(ListElements));
 
-        adapter = new ArrayAdapter<String>(SelectCityActivity.this,
+        adapter = new ArrayAdapter<>(SelectCityActivity.this,
                 android.R.layout.simple_list_item_1,
                 ListElementsArrayList
 
         );
 
 
-        start.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (start.isChecked()) {
-                    final Animation myAnim = AnimationUtils.loadAnimation(ctx, R.anim.bounce);
-                    // Use bounce interpolator with amplitude 0.2 and frequency 20
-                    MyBounceInterpolator interpolator = new MyBounceInterpolator(0.1, 10);
-                    myAnim.setInterpolator(interpolator);
-                    start.startAnimation(myAnim);
+        start.setOnClickListener(view -> {
+            if (start.isChecked()) {
+                final Animation myAnim = AnimationUtils.loadAnimation(ctx, R.anim.bounce);
+                // Use bounce interpolator with amplitude 0.2 and frequency 20
+                MyBounceInterpolator interpolator = new MyBounceInterpolator(0.1, 10);
+                myAnim.setInterpolator(interpolator);
+                start.startAnimation(myAnim);
+                if (App.debug == 1) {
+
                     Log.i("SELECTCITY debug", "ToggleButton  has been started.");
-                    timestamp1 = Calendar.getInstance().getTime();
-                    textView.setText("Letzter Start: " + df.format(timestamp1) + "Uhr");
-                    textViewButton.setText("Arbeit beenden");
-
-
-                    //workingFlagHelper.deleteFull();
-                    //Log.i("WORKING debug", "Working Flag Database was deleted");
-                    //workingFlagHelper = new WorkingFlagHelper(ctx);
-                    workingFlagHelper.updateWork(1, timestamp1.getTime());
-                    //workingFlagHelper.updateWork(1, timestamp1.getTime());
-                    //workingFlagHelper.updateDate(timestamp1.getTime());
-                    Log.i("WORKING debug", "Working Flag: " + workingFlagHelper.getWorkingStatus() + " Starttime: " + dfFull.format(workingFlagHelper.getDate()));
-
-
-                    if (!isMyServiceRunning(mLocationService.getClass())) {
-                        startService(mLocationIntent);
-                    }
-
-                } else {
-                    final Animation myAnim = AnimationUtils.loadAnimation(ctx, R.anim.bounce);
-
-                    // Use bounce interpolator with amplitude 0.2 and frequency 20
-                    MyBounceInterpolator interpolator = new MyBounceInterpolator(0.1, 10);
-                    myAnim.setInterpolator(interpolator);
-
-                    start.startAnimation(myAnim);
-                    builder
-                            .setTitle("Arbeit wird beendet")
-                            .setMessage("Sind Sie sicher?")
-                            .setIcon(R.drawable.ic_timer_black_24dp)
-                            .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (isMyServiceRunning(mLocationService.getClass())) {
-                                        stopService(mLocationIntent);
-                                    }
-                                    //workingFlagHelper.updateWork(0);
-                                    //Log.i("WORKING debug", "Working Flag: " +workingFlagHelper.getWorkingStatus() + " Starttime: " + dfFull.format(workingFlagHelper.getDate()));
-
-                                    timestamp2 = Calendar.getInstance().getTime();
-
-                                    //workingFlagHelper.deleteAll();
-                                    //workingFlagHelper.startWork(0,timestamp2.getTime());
-                                    /**
-                                     workingFlagHelper.deleteFull();
-                                     Log.i("WORKING debug", "Working Flag Database was deleted");
-                                     //workingFlagHelper = new WorkingFlagHelper(ctx);
-                                     workingFlagHelper.startWork(0,timestamp2.getTime());*/
-                                    long diff = timestamp2.getTime() - timestamp1.getTime();
-
-                                    workingFlagHelper.updateWork(0, timestamp2.getTime());
-                                    workingFlagHelper.updateTime(workingFlagHelper.getTime() + diff);
-                                    //workingFlagHelper.updateDate(timestamp1.getTime());
-                                    Log.i("WORKING debug", "Working Flag: " + workingFlagHelper.getWorkingStatus() + " Starttime: " + dfFull.format(workingFlagHelper.getDate()));
-
-                                    textViewTime.setText("Gesamtzeit vom " + dfDate.format(workingFlagHelper.getDate()) + "\n" + timeCalculator.formatTime(workingFlagHelper.getTime()));
-                                    textView.setText("Arbeitsende: " + df.format(timestamp2) + "Uhr" + "\n" + "Gearbeitete Zeit: " + timeCalculator.formatTime(diff));
-                                    textViewButton.setText("Arbeit starten");
-                                }
-                            })
-                            .setNegativeButton("Nein", new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            start.setChecked(true);
-                                            if (!isMyServiceRunning(mLocationService.getClass())) {
-                                                startService(mLocationIntent);
-                                            }
-                                            textView.setText("Letzter Start: " + df.format(timestamp1) + "Uhr");
-                                            textViewButton.setText("Arbeit beenden");
-                                        }
-                                    }
-                            )
-                            .show();
                 }
+                timestamp1 = Calendar.getInstance().getTime();
+                textView.setText("Letzter Start: " + df.format(timestamp1) + "Uhr");
+                textViewButton.setText("Arbeit beenden");
+
+
+                //workingFlagHelper.deleteFull();
+                //Log.i("WORKING debug", "Working Flag Database was deleted");
+                //workingFlagHelper = new WorkingFlagHelper(ctx);
+                workingFlagHelper.updateWork(1, timestamp1.getTime());
+                //workingFlagHelper.updateWork(1, timestamp1.getTime());
+                //workingFlagHelper.updateDate(timestamp1.getTime());
+                if (App.debug == 1) {
+
+                    Log.i("WORKING debug", "Working Flag: " + workingFlagHelper.getWorkingStatus() + " Starttime: " + dfFull.format(workingFlagHelper.getDate()));
+                }
+
+                if (!isMyServiceRunning(mLocationService.getClass())) {
+                    startService(mLocationIntent);
+                }
+
+            } else {
+                final Animation myAnim = AnimationUtils.loadAnimation(ctx, R.anim.bounce);
+
+                // Use bounce interpolator with amplitude 0.2 and frequency 20
+                MyBounceInterpolator interpolator = new MyBounceInterpolator(0.1, 10);
+                myAnim.setInterpolator(interpolator);
+
+                start.startAnimation(myAnim);
+                builder
+                        .setTitle("Arbeit wird beendet")
+                        .setMessage("Sind Sie sicher?")
+                        .setIcon(R.drawable.ic_timer_black_24dp)
+                        .setPositiveButton("Ja", (dialog, which) -> {
+                            if (isMyServiceRunning(mLocationService.getClass())) {
+                                stopService(mLocationIntent);
+                            }
+                            //workingFlagHelper.updateWork(0);
+                            //Log.i("WORKING debug", "Working Flag: " +workingFlagHelper.getWorkingStatus() + " Starttime: " + dfFull.format(workingFlagHelper.getDate()));
+
+                            timestamp2 = Calendar.getInstance().getTime();
+
+                            //workingFlagHelper.deleteAll();
+                            //workingFlagHelper.startWork(0,timestamp2.getTime());
+                            /**
+                             workingFlagHelper.deleteFull();
+                             Log.i("WORKING debug", "Working Flag Database was deleted");
+                             //workingFlagHelper = new WorkingFlagHelper(ctx);
+                             workingFlagHelper.startWork(0,timestamp2.getTime());*/
+                            long diff = timestamp2.getTime() - timestamp1.getTime();
+
+                            workingFlagHelper.updateWork(0, timestamp2.getTime());
+                            workingFlagHelper.updateTime(workingFlagHelper.getTime() + diff);
+                            //workingFlagHelper.updateDate(timestamp1.getTime());
+                            if (App.debug == 1) {
+
+                                Log.i("WORKING debug", "Working Flag: " + workingFlagHelper.getWorkingStatus() + " Starttime: " + dfFull.format(workingFlagHelper.getDate()));
+                            }
+                            textViewTime.setText("Gesamtzeit vom " + dfDate.format(workingFlagHelper.getDate()) + "\n" + timeCalculator.formatTime(workingFlagHelper.getTime()));
+                            textView.setText("Arbeitsende: " + df.format(timestamp2) + "Uhr" + "\n" + "Gearbeitete Zeit: " + timeCalculator.formatTime(diff));
+                            textViewButton.setText("Arbeit starten");
+                        })
+                        .setNegativeButton("Nein", (dialog, which) -> {
+                                    start.setChecked(true);
+                                    if (!isMyServiceRunning(mLocationService.getClass())) {
+                                        startService(mLocationIntent);
+                                    }
+                                    textView.setText("Letzter Start: " + df.format(timestamp1) + "Uhr");
+                                    textViewButton.setText("Arbeit beenden");
+                                }
+                        )
+                        .show();
             }
         });
 
-        /**
+        /*
          if (start.isChecked()){
          mainActivity.getLocation();
          }*/
 
-        buttonBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(mainIntent);
-            }
+        buttonBack.setOnClickListener(v -> {
+            Intent mainIntent = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(mainIntent);
         });
     }
 
-    public boolean isMyServiceRunning(Class<?> serviceClass) {
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        assert manager != null;
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i("isMyServiceRunning?", true + "");
+                if (App.debug == 1) {
+
+                    Log.i("isMyServiceRunning?", true + "");
+                }
                 return true;
             }
         }
-        Log.i("isMyServiceRunning?", false + "");
+        if (App.debug == 1) {
+
+            Log.i("isMyServiceRunning?", false + "");
+        }
         return false;
     }
 
@@ -257,7 +280,7 @@ public class SelectCityActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        /**
+        /*
          if (start.isChecked()) {
          bundle.putBoolean("ToggleButtonState", start.isChecked());
          bundle.putLong("StartTime", timestamp1.getTime());
@@ -276,7 +299,7 @@ public class SelectCityActivity extends AppCompatActivity {
             //textView.setText("Arbeitsbeginn: " + locationHelper.getStartTime() + "Uhr");
             textView.setText("Letzter Start: " + df.format(workingFlagHelper.getDate()) + "Uhr");
 
-            /**
+            /*
              try {
              timestamp1 = df.parse(locationHelper.getStartTime());
              } catch (ParseException e) {
@@ -298,7 +321,7 @@ public class SelectCityActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        /**
+        /*
          if (start.isChecked()) {
          bundle.putBoolean("ToggleButtonState", start.isChecked());
          bundle.putLong("StartTime", timestamp1.getTime());
@@ -319,7 +342,7 @@ public class SelectCityActivity extends AppCompatActivity {
             //textView.setText("Arbeitsbeginn: " + locationHelper.getStartTime() + "Uhr");
             textView.setText("Letzter Start: " + df.format(workingFlagHelper.getDate()) + "Uhr");
 
-            /**
+            /*
              try {
              timestamp1 = df.parse(locationHelper.getStartTime());
              } catch (ParseException e) {
@@ -339,7 +362,10 @@ public class SelectCityActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        Log.i("SELECTCITY debug", "Activity's onDestroy.");
+        if (App.debug == 1) {
+
+            Log.i("SELECTCITY debug", "Activity's onDestroy.");
+        }
         if (workingFlagHelper.getWorkingStatus() == 1) {
 
             if (!isMyServiceRunning(mLocationService.getClass())) {

@@ -1,7 +1,7 @@
 package Services;
 
-/**
- * Created by Angel on 16.02.2018.
+/*
+  Created by Angel on 16.02.2018.
  */
 
 import android.app.Service;
@@ -12,6 +12,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.example.luis.qrscannerfrandreas.App;
 import com.example.luis.qrscannerfrandreas.SelectCityActivity;
 
 import java.text.DateFormat;
@@ -25,21 +26,24 @@ import sql.LocationHelper;
 
 public class LocationService extends Service {
 
-    public Date startTimestamp;
+    private Date startTimestamp;
     public int counter = 0;
-    Locations locations;
-    LocationTracker locationTracker;
-    DateFormat df;
-    Handler handler;
-    boolean running;
+    private Locations locations;
+   private LocationTracker locationTracker;
+   private DateFormat df;
+    private Handler handler;
+    private boolean running;
     SelectCityActivity selectCityActivity;
     private LocationHelper locationHelper;
     public LocationService(Context applicationContext) {
         super();
-        Log.i("SERVICE debug", "LocationService starts");
+        if (App.debug == 1) {
+
+            Log.i("SERVICE debug", "LocationService starts");
+        }
         running = true;
 
-        //locations = new Locations();
+        locations = new Locations();
     }
 
     public LocationService() {
@@ -61,7 +65,7 @@ public class LocationService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        locationTracker.getLocation(1*10*1000, 0);
+        locationTracker.getLocation(10 * 1000, 0);
 
         //locationTracker.locationListener.onLocationChanged(locationTracker.getLocation(1 * 60 * 1000, 10));
         return START_STICKY;
@@ -76,7 +80,10 @@ public class LocationService extends Service {
         if (locationHelper.checkAllSynced()) {
             locationHelper.deleteAll();
         }
-        Log.i("SERVICE debug", "LocationService onDestroy");
+        if (App.debug == 1) {
+
+            Log.i("SERVICE debug", "LocationService onDestroy");
+        }
     }
 
     @Nullable

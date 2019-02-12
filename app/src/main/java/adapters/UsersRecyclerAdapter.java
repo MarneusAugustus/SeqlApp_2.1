@@ -28,10 +28,10 @@ import static android.graphics.Color.WHITE;
 public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdapter.UserViewHolder> {
 
     public static int boxid;
-    DatabaseHelper databaseHelper;
-    Context context;
-    int position;
-    private List<Scans> listScans;
+    private DatabaseHelper databaseHelper;
+    private Context context;
+    private int position;
+    private final List<Scans> listScans;
 
     public UsersRecyclerAdapter(List<Scans> listUsers) {
         this.listScans = listUsers;
@@ -98,9 +98,11 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
 
     @Override
     public int getItemCount() {
-        Log.v(UsersRecyclerAdapter.class.getSimpleName(), "" + listScans.size());
-        Log.i("BOXUPDATE debug", "ListenAnzahl: " + listScans.size());
+        if (App.debug == 1) {
 
+            Log.v(UsersRecyclerAdapter.class.getSimpleName(), "" + listScans.size());
+            Log.i("BOXUPDATE debug", "ListenAnzahl: " + listScans.size());
+        }
         return listScans.size();
     }
 
@@ -109,18 +111,18 @@ public class UsersRecyclerAdapter extends RecyclerView.Adapter<UsersRecyclerAdap
      */
     public class UserViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        public AppCompatTextView textViewName;
-        public AppCompatTextView textViewExptime;
-        public AppCompatTextView textViewDate;
-        public ImageView imageViewStatus;
-        public CardView cardview;
+        final AppCompatTextView textViewName;
+        final AppCompatTextView textViewExptime;
+        final AppCompatTextView textViewDate;
+        // --Commented out by Inspection (08.02.19 00:43):final ImageView imageViewStatus;
+        final CardView cardview;
 
-        public UserViewHolder(View view) {
+        UserViewHolder(View view) {
             super(view);
             textViewName = view.findViewById(R.id.textViewName);
             textViewExptime = view.findViewById(R.id.textViewExptime);
             textViewDate = view.findViewById(R.id.textViewDate);
-            imageViewStatus = view.findViewById(R.id.imageViewStatus);
+            //imageViewStatus = view.findViewById(R.id.imageViewStatus);
             cardview = view.findViewById(R.id.cardview);
             view.setOnClickListener(this);
 

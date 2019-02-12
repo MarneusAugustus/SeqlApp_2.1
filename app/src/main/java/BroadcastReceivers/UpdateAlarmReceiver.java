@@ -17,18 +17,20 @@ import sql.UrlHelper;
 
 
 public class UpdateAlarmReceiver extends WakefulBroadcastReceiver {
-    UrlHelper urlHelper;
+    private UrlHelper urlHelper;
     Date todaysDate, lastUpdate;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         urlHelper = new UrlHelper(App.getContext());
-/**
+/*
  SimpleDateFormat dfDate = new SimpleDateFormat("dd.MM.yyyy");
  String todaysDateString = dfDate.format(Calendar.getInstance().getTime());
 
  String lastUpdateString = dfDate.format(urlHelper.getDate());
+ if (App.debug == 1) {
  Log.i("UPDATE debug", "Last Update is from: " + lastUpdateString + "\n" + "Today is: " + todaysDateString);
+ }
  SimpleDateFormat dfGetTime = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
 
@@ -60,6 +62,7 @@ public class UpdateAlarmReceiver extends WakefulBroadcastReceiver {
 
         Calendar calendar = Calendar.getInstance();
 
+        assert alarmMgr != null;
         alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 60 * 1000, alarmIntent);
 
         // Enable {@code SampleBootReceiver} to automatically restart the alarm when the

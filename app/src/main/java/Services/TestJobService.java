@@ -1,7 +1,7 @@
 package Services;
 
-/**
- * Created by Angel on 20.02.2018.
+/*
+  Created by Angel on 20.02.2018.
  */
 
 import android.app.ActivityManager;
@@ -12,7 +12,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.example.luis.qrscannerfrandreas.App;
@@ -43,20 +42,23 @@ import utilities.Util;
  * start another service
  */
 public class TestJobService extends JobService {
-    private static final String TAG = "SyncService";
-    DatabaseHelper databaseHelper;
+private static final String TAG = "SyncService";
+    private DatabaseHelper databaseHelper;
     TimeCalculator timeCalculator;
-    GetMacAdress getMacAdress;
+   GetMacAdress getMacAdress;
     DateFormat df = new SimpleDateFormat("HH:mm:ss");
-    WorkingFlagHelper workingFlagHelper;
-    Date currentTime = Calendar.getInstance().getTime();
-    Date todayAtFour, todayAtMidnight, tidDate, boxDate;
-    Date todaysDate;
-    Date workingDate;
-    LocationService locationService;
-    Intent locationIntent;
+    private WorkingFlagHelper workingFlagHelper;
+    private final Date currentTime = Calendar.getInstance().getTime();
+    Date todayAtFour;
+    Date todayAtMidnight;
+    Date tidDate;
+   private Date boxDate;
+    private Date todaysDate;
+    private Date workingDate;
+    private LocationService locationService;
+    private Intent locationIntent;
     App app;
-    SelectCityActivity selectCityActivity;
+    private SelectCityActivity selectCityActivity;
 
     @Override
     public boolean onStartJob(JobParameters params) {
@@ -68,19 +70,22 @@ public class TestJobService extends JobService {
         locationIntent = new Intent(this, locationService.getClass());
         selectCityActivity = new SelectCityActivity();
 
-        /**
-         * -----------------------------------------------------------------------------------------------------------------------------------
+        /*
+          -----------------------------------------------------------------------------------------------------------------------------------
          */
 
-        /**
-         * This method automatically updates the BoxList
+        /*
+          This method automatically updates the BoxList
          */
 
         SimpleDateFormat dfDate = new SimpleDateFormat("dd.MM.yyyy");
         String todaysDateString = dfDate.format(Calendar.getInstance().getTime());
 
         String boxDateString = dfDate.format(databaseHelper.getToday());
-        Log.i("TID debug", "Last Boxupdate is from: " + boxDateString + "\n" + "Today is: " + todaysDateString);
+        if (App.debug == 1) {
+
+            Log.i("TID debug", "Last Boxupdate is from: " + boxDateString + "\n" + "Today is: " + todaysDateString);
+        }
         SimpleDateFormat dfGetTime = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
         try {
@@ -94,23 +99,28 @@ public class TestJobService extends JobService {
         syncBoxes();
 
 
-        /**
-         * -----------------------------------------------------------------------------------------------------------------------------------
+        /*
+          -----------------------------------------------------------------------------------------------------------------------------------
          */
 
 
-        /**
-         * Method to automatically update Workflag to 0 if it is 04:00am the next day.
+        /*
+          Method to automatically update Workflag to 0 if it is 04:00am the next day.
          */
 
         //Checking if "Working Flag" is set on 1 or 0 and if it is actual.
         final String workingDateString = dfDate.format(workingFlagHelper.getDate());
-        Log.i("WORKING debug", "Last working flag is from: " + workingDateString + "\n" + "Today is: " + todaysDateString);
-        try {
+        if (App.debug == 1) {
+
+            Log.i("WORKING debug", "Last working flag is from: " + workingDateString + "\n" + "Today is: " + todaysDateString);
+        }
+            try {
             todaysDate = dfGetTime.parse(todaysDateString + " " + "04:01:00");
             workingDate = dfGetTime.parse(workingDateString + " " + "04:00:00");
-            Log.i("WORKING debug", "Is it NOW later than " + dfGetTime.format(workingDate.getTime() + 86400000L) + " ?");
+                if (App.debug == 1) {
 
+                    Log.i("WORKING debug", "Is it NOW later than " + dfGetTime.format(workingDate.getTime() + 86400000L) + " ?");
+                }
 
         } catch (ParseException e) {
             e.printStackTrace();
@@ -123,26 +133,33 @@ public class TestJobService extends JobService {
 
 
             //workingFlagHelper.updateWork(1, currentTime.getTime());
-            Log.i("WORKING debug", "Yes it is. Workingflag set to 0, LocationService will stop.");
+            if (App.debug == 1) {
+
+                Log.i("WORKING debug", "Yes it is. Workingflag set to 0, LocationService will stop.");
+            }
         }
 
         if (workingFlagHelper.getWorkingStatus() == 1) {
 
             if (!isMyServiceRunning(locationService.getClass())) {
                 startService(locationIntent);
-                Log.i("WORKING debug", "Workingflag set to 1, LocationService will start.");
+                if (App.debug == 1) {
 
+                    Log.i("WORKING debug", "Workingflag set to 1, LocationService will start.");
+                }
             }
 
         } else if (workingFlagHelper.getWorkingStatus() == 0) {
             if (isMyServiceRunning(locationService.getClass())) {
                 stopService(locationIntent);
-                Log.i("WORKING debug", "Workingflag set to 0, LocationService will stop.");
+                if (App.debug == 1) {
 
+                    Log.i("WORKING debug", "Workingflag set to 0, LocationService will stop.");
+                }
             }
         }
-            /**
-             * -----------------------------------------------------------------------------------------------------------------------------------
+            /*
+              -----------------------------------------------------------------------------------------------------------------------------------
              */
 
 
@@ -151,21 +168,28 @@ public class TestJobService extends JobService {
 
         }
 
-    public boolean isMyServiceRunning(Class<?> serviceClass) {
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        assert manager != null;
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i("isMyServiceRunning?", true + "");
+                if (App.debug == 1) {
+
+                    Log.i("isMyServiceRunning?", true + "");
+                }
                 return true;
             }
         }
-        Log.i("isMyServiceRunning?", false + "");
+        if (App.debug == 1) {
+
+            Log.i("isMyServiceRunning?", false + "");
+        }
         return false;
     }
 
 
 
-    public void syncBoxes() {
+    private void syncBoxes() {
         final Date timeNow = Calendar.getInstance().getTime();
         databaseHelper.deleteFull();
 
@@ -175,50 +199,47 @@ public class TestJobService extends JobService {
         Log.i(BroadcastReceiver.class.getSimpleName(), "!!!" + "\n" + "!!!" + "\n" + URL_SAVE_BOXES + "\n" + "!!!" + "\n" + "!!!");
 
         StringRequest stringRequest = new StringRequest(com.android.volley.Request.Method.GET, URL_SAVE_BOXES,
-                new com.android.volley.Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
+                response -> {
 
-                        try {
-                            JSONObject obj = new JSONObject(response);
-                            JSONArray arr = obj.getJSONArray("list");
+                    try {
+                        JSONObject obj = new JSONObject(response);
+                        JSONArray arr = obj.getJSONArray("list");
 
-                            for (int i = 0; i < arr.length(); i++) {
-                                // Get JSON object
-                                JSONObject jsonobj = arr.getJSONObject(i);
-                                float lon;
-                                float lat;
-                                try{
-                                    lat = Float.valueOf(jsonobj.get("lat").toString());
-                                }catch(NumberFormatException E){
-                                    lat = 0;
-                                }
-                                try{
-                                    lon = Float.valueOf(jsonobj.get("lon").toString());
-                                }catch(NumberFormatException E){
-                                    lon = 0;
-                                }
-                                databaseHelper.addScan(Integer.valueOf(jsonobj.get("boxid").toString()), timeNow.getTime(), jsonobj.get("city").toString(), Integer.valueOf(jsonobj.get("cityID").toString()), Integer.valueOf(jsonobj.get("boxlistID").toString()), Integer.valueOf(jsonobj.get("nr_in_route").toString()), jsonobj.get("titel").toString(), jsonobj.get("street").toString(), jsonobj.get("insti").toString(), jsonobj.get("genau").toString(), jsonobj.get("nicht_vor").toString(), "-", "-", 0, 0, lat,lon,Integer.valueOf(jsonobj.get("tourID").toString()),"");
-                                //databaseHelper.addScan(jsonobj.get("titel").toString(),2);                                //databaseHelper.addScan(jsonobj.get("titel").toString(),2);
-                                Log.i("BOXUPDATE debug", "Boxenupdate erfolgreich, Box: " + jsonobj.get("boxid").toString() + " ist gespeichert");
-
+                        for (int i = 0; i < arr.length(); i++) {
+                            // Get JSON object
+                            JSONObject jsonobj = arr.getJSONObject(i);
+                            float lon;
+                            float lat;
+                            try{
+                                lat = Float.valueOf(jsonobj.get("lat").toString());
+                            }catch(NumberFormatException E){
+                                lat = 0;
                             }
+                            try{
+                                lon = Float.valueOf(jsonobj.get("lon").toString());
+                            }catch(NumberFormatException E){
+                                lon = 0;
+                            }
+                            databaseHelper.addScan(Integer.valueOf(jsonobj.get("boxid").toString()), timeNow.getTime(), jsonobj.get("city").toString(), Integer.valueOf(jsonobj.get("cityID").toString()), Integer.valueOf(jsonobj.get("boxlistID").toString()), Integer.valueOf(jsonobj.get("nr_in_route").toString()), jsonobj.get("titel").toString(), jsonobj.get("street").toString(), jsonobj.get("insti").toString(), jsonobj.get("genau").toString(), jsonobj.get("nicht_vor").toString(), "-", "-", 0, 0, lat,lon,Integer.valueOf(jsonobj.get("tourID").toString()),"");
+                            //databaseHelper.addScan(jsonobj.get("titel").toString(),2);
+                            // databaseHelper.addScan(jsonobj.get("titel").toString(),2);
+                            if (App.debug == 1) {
 
-                        } catch (JSONException e) {
-                            Log.e("BOXUPDATE debug", "unexpected JSON exception", e);
-                            e.printStackTrace();
+                                Log.i("BOXUPDATE debug", "Boxenupdate erfolgreich, Box: " + jsonobj.get("boxid").toString() + " ist gespeichert");
+                            }
                         }
+
+                    } catch (JSONException e) {
+                        if (App.debug == 1) {
+
+                            Log.e("BOXUPDATE debug", "unexpected JSON exception", e);
+                        }
+                        e.printStackTrace();
                     }
                 },
-                new com.android.volley.Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.e("BOXUPDATE debug", "Error waiting for the server to Respond.");
-
-                    }
-                }) {
+                error -> Log.e("Boxupdate Error", "Error waiting for the server to Respond.")) {
             @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
+            protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
                 params.put("scan", URL_SAVE_BOXES);
                 return params;

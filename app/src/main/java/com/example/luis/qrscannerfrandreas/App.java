@@ -2,10 +2,8 @@ package com.example.luis.qrscannerfrandreas;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 
-import Services.LocationService;
 import sql.UrlHelper;
 import sql.WorkingFlagHelper;
 import utilities.Util;
@@ -17,9 +15,10 @@ import utilities.Util;
 
 public class App extends Application {
 
-    public static Context context;
-    WorkingFlagHelper workingFlagHelper;
-    UrlHelper urlHelper;
+    private static Context context;
+    private WorkingFlagHelper workingFlagHelper;
+    private UrlHelper urlHelper;
+    public static int debug;
 
 
     public static Context getContext() {
@@ -32,8 +31,12 @@ public class App extends Application {
         workingFlagHelper = new WorkingFlagHelper(this);
         urlHelper = new UrlHelper(this);
 
+        debug = 1;
 
-        Log.i("SCHEDULER", "!!!" + "\n" + "!!!" + "\n" + "HERE IS WHERE THE MAGIC HAPPENS - JobScheduler" + "\n" + "!!!" + "\n" + "!!!");
+        if (App.debug == 1) {
+            Log.i("SCHEDULER", "!!!" + "\n" + "!!!" + "\n" + "HERE IS WHERE THE MAGIC HAPPENS - JobScheduler" + "\n" + "!!!" + "\n" + "!!!");
+        }
+
         Util.scheduleJob(this);
 
         context = getApplicationContext();
